@@ -1,0 +1,203 @@
+services:
+  # --- 1. MÓDULO USUARIO ---
+  db-usuario:
+    image: mysql:8.0
+    container_name: db_usuario
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: db_usuario
+    ports: ["33060:3306"]
+    networks: [red_aduana]
+
+  ms-usuario:
+    image: maven:3.9-eclipse-temurin-21
+    container_name: ms_usuario
+    ports: ["8080:8080"]
+    depends_on: [db-usuario]
+    volumes: ["./modulo-usuario/codigo-fuente:/app"]
+    command: tail -f /dev/null
+    networks: [red_aduana]
+    working_dir: /app
+
+  # --- 2. MÓDULO VEHÍCULO ---
+  db-vehiculo:
+    image: mysql:8.0
+    container_name: db_vehiculo
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: db_vehiculo
+    ports: ["33061:3306"]
+    networks: [red_aduana]
+
+  ms-vehiculo:
+    image: maven:3.9-eclipse-temurin-21
+    container_name: ms_vehiculo
+    ports: ["8081:8080"]
+    depends_on: [db-vehiculo]
+    volumes: ["./modulo-vehiculo/codigo-fuente:/app"]
+    command: tail -f /dev/null
+    networks: [red_aduana]
+    working_dir: /app
+
+  # --- 3. MÓDULO MASCOTA ---
+  db-mascota:
+    image: mysql:8.0
+    container_name: db_mascota
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: db_mascota
+    ports: ["33062:3306"]
+    networks: [red_aduana]
+
+  ms-mascota:
+    image: maven:3.9-eclipse-temurin-21
+    container_name: ms_mascota
+    ports: ["8082:8080"]
+    depends_on: [db-mascota]
+    volumes: ["./modulo-mascota/codigo-fuente:/app"]
+    command: tail -f /dev/null
+    networks: [red_aduana]
+    working_dir: /app
+
+  # --- 4. MÓDULO MENOR ---
+  db-menor:
+    image: mysql:8.0
+    container_name: db_menor
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: db_menor
+    ports: ["33063:3306"]
+    networks: [red_aduana]
+
+  ms-menor:
+    image: maven:3.9-eclipse-temurin-21
+    container_name: ms_menor
+    ports: ["8083:8080"]
+    depends_on: [db-menor]
+    volumes: ["./modulo-menor/codigo-fuente:/app"]
+    command: tail -f /dev/null
+    networks: [red_aduana]
+    working_dir: /app
+
+  # --- 5. MÓDULO DECLARACIÓN ---
+  db-declaracion:
+    image: mysql:8.0
+    container_name: db_declaracion
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: db_declaracion
+    ports: ["33064:3306"]
+    networks: [red_aduana]
+
+  ms-declaracion:
+    image: maven:3.9-eclipse-temurin-21
+    container_name: ms_declaracion
+    ports: ["8084:8080"]
+    depends_on: [db-declaracion]
+    volumes: ["./modulo-declaracion/codigo-fuente:/app"]
+    command: tail -f /dev/null
+    networks: [red_aduana]
+    working_dir: /app
+
+  # --- 6. MÓDULO ADUANA-ARG ---
+  db-aduana:
+    image: mysql:8.0
+    container_name: db_aduana
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: db_aduana
+    ports: ["33065:3306"]
+    networks: [red_aduana]
+
+  ms-aduana:
+    image: maven:3.9-eclipse-temurin-21
+    container_name: ms_aduana
+    ports: ["8085:8080"]
+    depends_on: [db-aduana]
+    volumes: ["./modulo-aduana-arg/codigo-fuente:/app"]
+    command: tail -f /dev/null
+    networks: [red_aduana]
+    working_dir: /app
+
+  # --- 7. MÓDULO CORREO ---
+  db-correo:
+    image: mysql:8.0
+    container_name: db_correo
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: db_correo
+    ports: ["33066:3306"]
+    networks: [red_aduana]
+
+  ms-correo:
+    image: maven:3.9-eclipse-temurin-21
+    container_name: ms_correo
+    ports: ["8086:8080"]
+    depends_on: [db-correo]
+    volumes: ["./modulo-correo/codigo-fuente:/app"]
+    command: tail -f /dev/null
+    networks: [red_aduana]
+    working_dir: /app
+
+  # --- 8. MÓDULO QR ---
+  db-qr:
+    image: mysql:8.0
+    container_name: db_qr
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: db_qr
+    ports: ["33067:3306"]
+    networks: [red_aduana]
+
+  ms-qr:
+    image: maven:3.9-eclipse-temurin-21
+    container_name: ms_qr
+    ports: ["8087:8080"]
+    depends_on: [db-qr]
+    volumes: ["./modulo-qr/codigo-fuente:/app"]
+    command: tail -f /dev/null
+    networks: [red_aduana]
+    working_dir: /app
+
+  # --- 9. MÓDULO REPORTE ---
+  db-reporte:
+    image: mysql:8.0
+    container_name: db_reporte
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: db_reporte
+    ports: ["33068:3306"]
+    networks: [red_aduana]
+
+  ms-reporte:
+    image: maven:3.9-eclipse-temurin-21
+    container_name: ms_reporte
+    ports: ["8088:8080"]
+    depends_on: [db-reporte]
+    volumes: ["./modulo-reporte/codigo-fuente:/app"]
+    command: tail -f /dev/null
+    networks: [red_aduana]
+    working_dir: /app
+
+  # --- 10. MÓDULO TURNO ---
+  db-turno:
+    image: mysql:8.0
+    container_name: db_turno
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: db_turno
+    ports: ["33069:3306"]
+    networks: [red_aduana]
+
+  ms-turno:
+    image: maven:3.9-eclipse-temurin-21
+    container_name: ms_turno
+    ports: ["8089:8080"]
+    depends_on: [db-turno]
+    volumes: ["./modulo-turno/codigo-fuente:/app"]
+    command: tail -f /dev/null
+    networks: [red_aduana]
+    working_dir: /app
+
+networks:
+  red_aduana:
