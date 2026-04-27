@@ -11,38 +11,41 @@ import java.util.Optional;
 public class DeclaracionService {
 
     @Autowired
-    private DeclaracionRepository declaracionRepository;
+    private DeclaracionRepository repository;
 
-    public List<Declaracion> obtenerTodos() {
-        return declaracionRepository.findAll();
+    public List<Declaracion> obtenerTodas() {
+        return repository.findAll();
     }
 
     public Declaracion guardar(Declaracion declaracion) {
-        return declaracionRepository.save(declaracion);
+        return repository.save(declaracion);
     }
 
-    public List<Declaracion> buscarPorRut(String rut) {
-        return declaracionRepository.findByRutDeclarante(rut);
-    }
-
-    public void eliminarPorId(Long id) {
-        if (declaracionRepository.existsById(id)) {
-            declaracionRepository.deleteById(id);
-        }
-    }
-
-    public Declaracion actualizar(Long id, Declaracion datosNuevos) {
-        Optional<Declaracion> existente = declaracionRepository.findById(id);
-        
-        if (existente.isPresent()) {
-            Declaracion d = existente.get();
-            d.setRutDeclarante(datosNuevos.getRutDeclarante());
-            d.setDescripcionArticulos(datosNuevos.getDescripcionArticulos());
-            d.setValorEstimadoUsd(datosNuevos.getValorEstimadoUsd());
-            d.setTraeAlimentos(datosNuevos.getTraeAlimentos());
-            d.setPaisProcedencia(datosNuevos.getPaisProcedencia());
-            return declaracionRepository.save(d);
+    public Declaracion buscarPorRut(String rut) {
+        Optional<Declaracion> d = repository.findByRutDeclarante(rut);
+        if (d.isPresent()) {
+            return d.get();
         }
         return null;
+    }
+
+    public Declaracion actualizar(String rut, Declaracion nuevosDatos) {
+        Optional<Declaracion> d = repository.findByRutDeclarante(rut);
+        if (d.isPresent()) {
+            Declaracion existente = d.get();
+            existente.setDescripcionArticulos(nuevosDatos.getDescripcionArticulos());
+            existente.setValorEstimadoUsd(nuevosDatos.getValorEstimadoUsd());
+            existente.setTraeAlimentos(nuevosDatos.getTraeAlimentos());
+            existente.setPaisProcedencia(nuevosDatos.getPaisProcedencia());
+            return repository.save(existente);
+        }
+        return null;
+    }
+
+    public void eliminarPorRut(String rut) {
+        Optional<Declaracion> d = repository.findByRutDeclarante(rut);
+        if (d.isPresent()) {
+            repository.deleteByRutDeclarante(rut);
+        }
     }
 }

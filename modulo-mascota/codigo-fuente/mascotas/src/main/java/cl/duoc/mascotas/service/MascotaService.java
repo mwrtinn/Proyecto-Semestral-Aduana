@@ -23,10 +23,17 @@ public class MascotaService {
 
     public Mascota buscarPorMicrochip(String microchip) {
         Optional<Mascota> m = repository.findByMicrochip(microchip);
-        if (m.isPresent()) {
-            return m.get();
-        }
-        return null;
+        return m.orElse(null);
+    }
+
+    public Mascota actualizar(String microchip, Mascota nuevosDatos) {
+        return repository.findByMicrochip(microchip).map(mascotaExistente -> {
+            mascotaExistente.setNombre(nuevosDatos.getNombre());
+            mascotaExistente.setEspecie(nuevosDatos.getEspecie());
+            mascotaExistente.setRaza(nuevosDatos.getRaza());
+            mascotaExistente.setEdad(nuevosDatos.getEdad());
+            return repository.save(mascotaExistente);
+        }).orElse(null); 
     }
 
     public void eliminarPorMicrochip(String microchip) {

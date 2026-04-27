@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -25,6 +24,15 @@ public class MascotaController {
     @PostMapping("/registro")
     public ResponseEntity<Mascota> registrar(@Valid @RequestBody Mascota mascota) {
         return new ResponseEntity<>(service.guardar(mascota), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{microchip}")
+    public ResponseEntity<Mascota> actualizar(@PathVariable String microchip, @Valid @RequestBody Mascota datosMascota) {
+        Mascota actualizada = service.actualizar(microchip, datosMascota);
+        if (actualizada != null) {
+            return new ResponseEntity<>(actualizada, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/{microchip}")

@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -18,38 +17,34 @@ public class DeclaracionController {
     private DeclaracionService service;
 
     @GetMapping
-    public ResponseEntity<List<Declaracion>> obtenerTodos() {
-        List<Declaracion> lista = service.obtenerTodos();
-        return new ResponseEntity<>(lista, HttpStatus.OK);
+    public ResponseEntity<List<Declaracion>> listar() {
+        return new ResponseEntity<>(service.obtenerTodas(), HttpStatus.OK);
     }
 
     @PostMapping("/registro")
     public ResponseEntity<Declaracion> registrar(@Valid @RequestBody Declaracion declaracion) {
-        Declaracion nueva = service.guardar(declaracion);
-        return new ResponseEntity<>(nueva, HttpStatus.CREATED);
+        return new ResponseEntity<>(service.guardar(declaracion), HttpStatus.CREATED);
     }
 
-    @GetMapping("/rut/{rut}")
-    public ResponseEntity<List<Declaracion>> buscarPorRut(@PathVariable String rut) {
-        List<Declaracion> lista = service.buscarPorRut(rut);
-        if (!lista.isEmpty()) {
-            return new ResponseEntity<>(lista, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @GetMapping("/{rut}")
+    public ResponseEntity<Declaracion> obtener(@PathVariable String rut) {
+        Declaracion d = service.buscarPorRut(rut);
+        return (d != null) 
+            ? new ResponseEntity<>(d, HttpStatus.OK) 
+            : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Declaracion> actualizar(@PathVariable Long id, @Valid @RequestBody Declaracion datos) {
-        Declaracion actualizada = service.actualizar(id, datos);
-        if (actualizada != null) {
-            return new ResponseEntity<>(actualizada, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @PutMapping("/{rut}")
+    public ResponseEntity<Declaracion> actualizar(@PathVariable String rut, @Valid @RequestBody Declaracion datos) {
+        Declaracion actualizada = service.actualizar(rut, datos);
+        return (actualizada != null) 
+            ? new ResponseEntity<>(actualizada, HttpStatus.OK) 
+            : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminar(@PathVariable Long id) {
-        service.eliminarPorId(id);
-        return new ResponseEntity<>("Declaración eliminada correctamente", HttpStatus.OK);
+    @DeleteMapping("/{rut}")
+    public ResponseEntity<String> eliminar(@PathVariable String rut) {
+        service.eliminarPorRut(rut);
+        return new ResponseEntity<>("Declaración eliminada correctamente para el RUT: " + rut, HttpStatus.OK);
     }
 }
