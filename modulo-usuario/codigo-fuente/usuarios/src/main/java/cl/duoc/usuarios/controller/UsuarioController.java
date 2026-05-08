@@ -1,6 +1,7 @@
 package cl.duoc.usuarios.controller;
 
-import cl.duoc.usuarios.model.Usuario;
+import cl.duoc.usuarios.dto.UsuarioCreateDTO;
+import cl.duoc.usuarios.dto.UsuarioDTO;
 import cl.duoc.usuarios.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,45 +12,35 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/usuarios")
+@RequestMapping("/api/v1/usuarios") 
 public class UsuarioController {
 
     @Autowired
     private UsuarioService service;
 
     @GetMapping
-    public ResponseEntity<List<Usuario>> obtenerTodos() {
-        List<Usuario> lista = service.obtenerTodos();
-        return new ResponseEntity<>(lista, HttpStatus.OK);
-    }
-
-    @PostMapping("/registro")
-    public ResponseEntity<Usuario> registrar(@Valid @RequestBody Usuario usuario) {
-        Usuario nuevo = service.guardar(usuario);
-        return new ResponseEntity<>(nuevo, HttpStatus.CREATED);
+    public ResponseEntity<List<UsuarioDTO>> listar() {
+        return ResponseEntity.ok(service.obtenerTodos());
     }
 
     @GetMapping("/{rut}")
-    public ResponseEntity<Usuario> buscarPorRut(@PathVariable String rut) {
-        Usuario u = service.buscarPorRut(rut);
-        if (u != null) {
-            return new ResponseEntity<>(u, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<UsuarioDTO> obtenerPorRut(@PathVariable String rut) {
+        return ResponseEntity.ok(service.buscarPorRut(rut));
+    }
+
+    @PostMapping
+    public ResponseEntity<UsuarioDTO> crear(@Valid @RequestBody UsuarioCreateDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.crear(dto));
     }
 
     @PutMapping("/{rut}")
-    public ResponseEntity<Usuario> actualizar(@PathVariable String rut, @Valid @RequestBody Usuario datos) {
-        Usuario actualizado = service.actualizar(rut, datos);
-        if (actualizado != null) {
-            return new ResponseEntity<>(actualizado, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<UsuarioDTO> actualizar(@PathVariable String rut, @Valid @RequestBody UsuarioCreateDTO dto) {
+        return ResponseEntity.ok(service.actualizar(rut, dto));
     }
 
     @DeleteMapping("/{rut}")
-    public ResponseEntity<String> eliminar(@PathVariable String rut) {
-        service.eliminarPorRut(rut);
-        return new ResponseEntity<>("Usuario eliminado correctamente", HttpStatus.OK);
+    public ResponseEntity<Void> eliminar(@PathVariable String rut) {
+        service.eliminar(rut);
+        return ResponseEntity.noContent().build();
     }
 }

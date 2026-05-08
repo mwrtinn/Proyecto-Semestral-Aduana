@@ -1,52 +1,79 @@
 package cl.duoc.usuarios.service;
 
+import cl.duoc.usuarios.dto.UsuarioCreateDTO;
+import cl.duoc.usuarios.dto.UsuarioDTO;
+import cl.duoc.usuarios.exception.RecursoNoEncontradoException;
 import cl.duoc.usuarios.model.Usuario;
 import cl.duoc.usuarios.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UsuarioService {
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UsuarioRepository repository;
 
-    public List<Usuario> obtenerTodos() {
-        return usuarioRepository.findAll();
+    
+    public List<UsuarioDTO> obtenerTodos() {
+        return repository.findAll().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
-    public Usuario guardar(Usuario usuario) {
-        return usuarioRepository.save(usuario);
+   
+    public UsuarioDTO buscarPorRut(String rut) {
+        Usuario usuario = repository.findByRut(rut)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado con RUT: " + rut));
+        return toDTO(usuario);
     }
 
-    public Usuario buscarPorRut(String rut) {
-        Optional<Usuario> lista = usuarioRepository.findByRut(rut);
-        if (lista.isPresent()) {
-            return lista.get(); 
-        }
-        return null; 
+   
+    public UsuarioDTO crear(UsuarioCreateDTO dto) {
+        Usuario usuario = new Usuario();
+        usuario.setNombre(dto.getNombre());
+        usuario.setRut(dto.getRut());
+        usuario.setEmail(dto.getEmail());
+        usuario.setPassword(dto.getPassword()); 
+        usuario.setRol(dto.getRol());
+
+        Usuario guardado = repository.save(usuario);
+        return toDTO(guardado);
     }
 
-    public void eliminarPorRut(String rut) {
-        Optional<Usuario> usuario = usuarioRepository.findByRut(rut);
-        if (usuario.isPresent()) {
-            usuarioRepository.deleteByRut(rut);
-        }
+    
+    public UsuarioDTO actualizar(String rut, UsuarioCreateDTO dto) {
+        Usuario usuarioExistente = repository.findByRut(rut)
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se puede actualizar. Usuario no encontrado con RUT: " + rut));
+
+        usuarioExistente.setNombre(dto.getNombre());
+        usuarioExistente.setEmail(dto.getEmail());
+        usuarioExistente.setPassword(dto.getPassword());
+        usuarioExistente.setRol(dto.getRol());
+
+        Usuario actualizado = repository.save(usuarioExistente);
+        return toDTO(actualizado);
     }
 
-    public Usuario actualizar(String rut, Usuario datosNuevos) {
-        Optional<Usuario> existente = usuarioRepository.findByRut(rut);
+   
+    public void eliminar(String rut) {
+        Usuario usuarioExistente = repository.findByRut(rut)
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se puede eliminar. Usuario no encontrado con RUT: " + rut));
         
-        if (existente.isPresent()) {
-            Usuario u = existente.get();
-            u.setNombre(datosNuevos.getNombre());
-            u.setEmail(datosNuevos.getEmail());
-            u.setRol(datosNuevos.getRol());
-            u.setPassword(datosNuevos.getPassword());
-            return usuarioRepository.save(u);
-        }
-        return null;
+        repository.delete(usuarioExistente);
+    }
+
+    
+    private UsuarioDTO toDTO(Usuario u) {
+        return new UsuarioDTO(
+                u.getId(),
+                u.getNombre(),
+                u.getRut(),
+                u.getEmail(),
+                u.getRol()
+        );
     }
 }
