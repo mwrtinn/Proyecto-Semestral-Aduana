@@ -1,7 +1,6 @@
 package cl.duoc.declaraciones.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Entity
@@ -13,20 +12,18 @@ public class Declaracion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "El RUT del declarante es obligatorio")
-    @Pattern(regexp = "^[0-9]{7,8}-[0-9Kk]$", message = "Formato de RUT no válido")
+    @Column(name = "rut_declarante", nullable = false)
     private String rutDeclarante;
 
-    @NotBlank(message = "La descripción de los artículos es obligatoria")
+    @Column(name = "descripcion_articulos", nullable = false)
     private String descripcionArticulos;
 
-    @NotNull(message = "El valor estimado es obligatorio")
-    @PositiveOrZero(message = "El valor debe ser mayor o igual a cero")
+    @Column(name = "valor_estimado_usd", nullable = false)
     private Double valorEstimadoUsd;
 
-    @NotNull(message = "Debe declarar si trae alimentos o productos de origen animal/vegetal")
+    @Column(name = "trae_alimentos", nullable = false)
     private Boolean traeAlimentos;
 
-    @NotBlank(message = "El país de procedencia es obligatorio")
+    @Column(name = "pais_procedencia", nullable = false)
     private String paisProcedencia;
 }

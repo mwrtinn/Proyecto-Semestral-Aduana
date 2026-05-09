@@ -1,51 +1,94 @@
 package cl.duoc.declaraciones.service;
 
+import cl.duoc.declaraciones.client.UsuarioFeignClient;
+import cl.duoc.declaraciones.dto.DeclaracionCreateDTO;
+import cl.duoc.declaraciones.dto.DeclaracionDTO;
+import cl.duoc.declaraciones.exception.RecursoNoEncontradoException;
+import cl.duoc.declaraciones.exception.ServicioNoDisponibleException;
 import cl.duoc.declaraciones.model.Declaracion;
 import cl.duoc.declaraciones.repository.DeclaracionRepository;
+import feign.FeignException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DeclaracionService {
 
     @Autowired
-    private DeclaracionRepository repository;
+    private DeclaracionRepository declaracionRepository;
 
-    public List<Declaracion> obtenerTodas() {
-        return repository.findAll();
-    }
+    @Autowired
+    private UsuarioFeignClient usuarioClient;
 
-    public Declaracion guardar(Declaracion declaracion) {
-        return repository.save(declaracion);
-    }
-
-    public Declaracion buscarPorRut(String rut) {
-        Optional<Declaracion> d = repository.findByRutDeclarante(rut);
-        if (d.isPresent()) {
-            return d.get();
+    private void validarDeclarante(String rut) {
+        try {
+            usuarioClient.obtenerPorRut(rut);
+        } catch (FeignException.NotFound e) {
+            throw new RecursoNoEncontradoException("No se puede registrar la declaración: El usuario con RUT " + rut + " no está registrado en el sistema.");
+        } catch (FeignException e) {
+            throw new ServicioNoDisponibleException("El servicio de Usuarios no responde. Intente registrar la declaración más tarde.");
         }
-        return null;
     }
 
-    public Declaracion actualizar(String rut, Declaracion nuevosDatos) {
-        Optional<Declaracion> d = repository.findByRutDeclarante(rut);
-        if (d.isPresent()) {
-            Declaracion existente = d.get();
-            existente.setDescripcionArticulos(nuevosDatos.getDescripcionArticulos());
-            existente.setValorEstimadoUsd(nuevosDatos.getValorEstimadoUsd());
-            existente.setTraeAlimentos(nuevosDatos.getTraeAlimentos());
-            existente.setPaisProcedencia(nuevosDatos.getPaisProcedencia());
-            return repository.save(existente);
-        }
-        return null;
+    public DeclaracionDTO registrar(DeclaracionCreateDTO request) {
+        validarDeclarante(request.getRutDeclarante());
+        
+        Declaracion declaracion = new Declaracion();
+        mapearEntidad(request, declaracion);
+        return mapearDto(declaracionRepository.save(declaracion));
     }
 
-    public void eliminarPorRut(String rut) {
-        Optional<Declaracion> d = repository.findByRutDeclarante(rut);
-        if (d.isPresent()) {
-            repository.deleteByRutDeclarante(rut);
+    public List<DeclaracionDTO> listar() {
+        return declaracionRepository.findAll().stream()
+                .map(this::mapearDto)
+                .collect(Collectors.toList());
+    }
+
+    public DeclaracionDTO obtenerPorId(Long id) {
+        Declaracion d = declaracionRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Declaración no encontrada con el ID: " + id));
+        return mapearDto(d);
+    }
+
+    public DeclaracionDTO actualizar(Long id, DeclaracionCreateDTO request) {
+        Declaracion d = declaracionRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Declaración no encontrada con el ID: " + id));
+        
+      
+        if (!d.getRutDeclarante().equals(request.getRutDeclarante())) {
+            validarDeclarante(request.getRutDeclarante());
         }
+
+        mapearEntidad(request, d);
+        return mapearDto(declaracionRepository.save(d));
+    }
+
+    public void eliminar(Long id) {
+        Declaracion d = declaracionRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Declaración no encontrada con el ID: " + id));
+        declaracionRepository.delete(d);
+    }
+
+    // Funciones de mapeo
+    private void mapearEntidad(DeclaracionCreateDTO dto, Declaracion d) {
+        d.setRutDeclarante(dto.getRutDeclarante());
+        d.setDescripcionArticulos(dto.getDescripcionArticulos());
+        d.setValorEstimadoUsd(dto.getValorEstimadoUsd());
+        d.setTraeAlimentos(dto.getTraeAlimentos());
+        d.setPaisProcedencia(dto.getPaisProcedencia());
+    }
+
+    private DeclaracionDTO mapearDto(Declaracion d) {
+        DeclaracionDTO dto = new DeclaracionDTO();
+        dto.setId(d.getId());
+        dto.setRutDeclarante(d.getRutDeclarante());
+        dto.setDescripcionArticulos(d.getDescripcionArticulos());
+        dto.setValorEstimadoUsd(d.getValorEstimadoUsd());
+        dto.setTraeAlimentos(d.getTraeAlimentos());
+        dto.setPaisProcedencia(d.getPaisProcedencia());
+        return dto;
     }
 }
