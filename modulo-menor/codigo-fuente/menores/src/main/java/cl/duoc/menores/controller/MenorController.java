@@ -1,6 +1,7 @@
 package cl.duoc.menores.controller;
 
-import cl.duoc.menores.model.Menor;
+import cl.duoc.menores.dto.MenorCreateDTO;
+import cl.duoc.menores.dto.MenorDTO;
 import cl.duoc.menores.service.MenorService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,45 +12,35 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/menores")
+@RequestMapping("/api/v1/menores")
 public class MenorController {
 
     @Autowired
-    private MenorService service;
+    private MenorService menorService;
 
-    @GetMapping
-    public ResponseEntity<List<Menor>> obtenerTodos() {
-        List<Menor> lista = service.obtenerTodos();
-        return new ResponseEntity<>(lista, HttpStatus.OK);
+    @PostMapping
+    public ResponseEntity<MenorDTO> crear(@Valid @RequestBody MenorCreateDTO request) {
+        return new ResponseEntity<>(menorService.registrar(request), HttpStatus.CREATED);
     }
 
-    @PostMapping("/registro")
-    public ResponseEntity<Menor> registrar(@Valid @RequestBody Menor menor) {
-        Menor nuevo = service.guardar(menor);
-        return new ResponseEntity<>(nuevo, HttpStatus.CREATED);
+    @GetMapping
+    public ResponseEntity<List<MenorDTO>> listar() {
+        return new ResponseEntity<>(menorService.listar(), HttpStatus.OK);
     }
 
     @GetMapping("/{rut}")
-    public ResponseEntity<Menor> buscarPorRut(@PathVariable String rut) {
-        Menor m = service.buscarPorRut(rut);
-        if (m != null) {
-            return new ResponseEntity<>(m, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<MenorDTO> buscar(@PathVariable String rut) {
+        return new ResponseEntity<>(menorService.obtener(rut), HttpStatus.OK);
     }
 
     @PutMapping("/{rut}")
-    public ResponseEntity<Menor> actualizar(@PathVariable String rut, @Valid @RequestBody Menor datos) {
-        Menor actualizado = service.actualizar(rut, datos);
-        if (actualizado != null) {
-            return new ResponseEntity<>(actualizado, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<MenorDTO> editar(@PathVariable String rut, @Valid @RequestBody MenorCreateDTO request) {
+        return new ResponseEntity<>(menorService.actualizar(rut, request), HttpStatus.OK);
     }
 
     @DeleteMapping("/{rut}")
-    public ResponseEntity<String> eliminar(@PathVariable String rut) {
-        service.eliminarPorRut(rut);
-        return new ResponseEntity<>("Registro de menor eliminado correctamente", HttpStatus.OK);
+    public ResponseEntity<Void> borrar(@PathVariable String rut) {
+        menorService.eliminar(rut);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
