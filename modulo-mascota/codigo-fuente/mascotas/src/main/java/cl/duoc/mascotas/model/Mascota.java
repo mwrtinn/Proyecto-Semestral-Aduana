@@ -1,41 +1,40 @@
 package cl.duoc.mascotas.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Entity
 @Table(name = "mascotas")
 @Data
 public class Mascota {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "El nombre de la mascota es obligatorio")
+    @Column(nullable = false)
     private String nombre;
 
-    @NotBlank(message = "El número de Microchip es obligatorio")
-    @Size(min = 15, max = 15, message = "El microchip debe tener exactamente 15 dígitos")
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 15)
     private String microchip;
 
-    @NotBlank(message = "La especie es obligatoria (Canino, Felino, etc.)")
+    @Column(nullable = false)
     private String especie;
 
-    @NotBlank(message = "La raza es obligatoria")
+    @Column(nullable = false)
     private String raza;
 
-    @Min(value = 0, message = "La edad no puede ser negativa")
+    @Column(nullable = false)
     private Integer edad;
 
-    @NotBlank(message = "Debe registrar la vacuna Antirrábica")
-    private String vacunaAntirrabica; 
+    @Column(name = "vacuna_antirrabica", nullable = false)
+    private String vacunaAntirrabica;
 
-    @NotBlank(message = "El certificado sanitario es obligatorio")
+    @Column(name = "numero_certificado", nullable = false)
     private String numeroCertificado;
 
-    @NotBlank(message = "País de procedencia es obligatorio")
+    @Column(name = "pais_origen", nullable = false)
     private String paisOrigen;
+
+    @Column(name = "rut_dueno", nullable = false)
+    private String rutDueno;
 }

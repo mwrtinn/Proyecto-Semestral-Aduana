@@ -1,52 +1,46 @@
 package cl.duoc.mascotas.controller;
 
-import cl.duoc.mascotas.model.Mascota;
+import cl.duoc.mascotas.dto.MascotaCreateDTO;
+import cl.duoc.mascotas.dto.MascotaDTO;
 import cl.duoc.mascotas.service.MascotaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
-@RequestMapping("/mascotas")
+@RequestMapping("/api/v1/mascotas")
 public class MascotaController {
 
     @Autowired
-    private MascotaService service;
+    private MascotaService mascotaService;
+
+    @PostMapping
+    public ResponseEntity<MascotaDTO> crear(@Valid @RequestBody MascotaCreateDTO request) {
+        return new ResponseEntity<>(mascotaService.registrar(request), HttpStatus.CREATED);
+    }
 
     @GetMapping
-    public ResponseEntity<List<Mascota>> listar() {
-        return new ResponseEntity<>(service.obtenerTodas(), HttpStatus.OK);
-    }
-
-    @PostMapping("/registro")
-    public ResponseEntity<Mascota> registrar(@Valid @RequestBody Mascota mascota) {
-        return new ResponseEntity<>(service.guardar(mascota), HttpStatus.CREATED);
-    }
-
-    @PutMapping("/{microchip}")
-    public ResponseEntity<Mascota> actualizar(@PathVariable String microchip, @Valid @RequestBody Mascota datosMascota) {
-        Mascota actualizada = service.actualizar(microchip, datosMascota);
-        if (actualizada != null) {
-            return new ResponseEntity<>(actualizada, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<List<MascotaDTO>> listar() {
+        return new ResponseEntity<>(mascotaService.listar(), HttpStatus.OK);
     }
 
     @GetMapping("/{microchip}")
-    public ResponseEntity<Mascota> obtener(@PathVariable String microchip) {
-        Mascota m = service.buscarPorMicrochip(microchip);
-        if (m != null) {
-            return new ResponseEntity<>(m, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<MascotaDTO> buscar(@PathVariable String microchip) {
+        return new ResponseEntity<>(mascotaService.obtener(microchip), HttpStatus.OK);
+    }
+
+    @PutMapping("/{microchip}")
+    public ResponseEntity<MascotaDTO> editar(@PathVariable String microchip, @Valid @RequestBody MascotaCreateDTO request) {
+        return new ResponseEntity<>(mascotaService.actualizar(microchip, request), HttpStatus.OK);
     }
 
     @DeleteMapping("/{microchip}")
-    public ResponseEntity<String> eliminar(@PathVariable String microchip) {
-        service.eliminarPorMicrochip(microchip);
-        return new ResponseEntity<>("Mascota eliminada del registro", HttpStatus.OK);
+    public ResponseEntity<Void> borrar(@PathVariable String microchip) {
+        mascotaService.eliminar(microchip);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
