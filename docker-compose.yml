@@ -1,5 +1,9 @@
+version: '3.8'
+
 services:
-  # --- 1. MÓDULO USUARIO ---
+  # ==========================================
+  # 1. MÓDULO USUARIO
+  # ==========================================
   db-usuario:
     image: mysql:8.0
     container_name: db_usuario
@@ -8,18 +12,28 @@ services:
       MYSQL_DATABASE: db_usuario
     ports: ["33060:3306"]
     networks: [red_aduana]
+    volumes:
+      - vol_db_usuario:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
 
   ms-usuario:
     image: maven:3.9-eclipse-temurin-21
     container_name: ms_usuario
     ports: ["8080:8080"]
-    depends_on: [db-usuario]
+    depends_on:
+      db-usuario:
+        condition: service_healthy
     volumes: ["./modulo-usuario/codigo-fuente:/app"]
     command: tail -f /dev/null
     networks: [red_aduana]
     working_dir: /app
 
-  # --- 2. MÓDULO VEHÍCULO ---
+  # ==========================================
+  # 2. MÓDULO VEHÍCULO
+  # ==========================================
   db-vehiculo:
     image: mysql:8.0
     container_name: db_vehiculo
@@ -28,18 +42,32 @@ services:
       MYSQL_DATABASE: db_vehiculo
     ports: ["33061:3306"]
     networks: [red_aduana]
+    volumes:
+      - vol_db_vehiculo:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
 
   ms-vehiculo:
     image: maven:3.9-eclipse-temurin-21
     container_name: ms_vehiculo
     ports: ["8081:8080"]
-    depends_on: [db-vehiculo]
+    depends_on:
+      db-vehiculo:
+        condition: service_healthy
+      ms-usuario:
+        condition: service_started
+    environment:
+      - USUARIOS_HOST=ms_usuario
     volumes: ["./modulo-vehiculo/codigo-fuente:/app"]
     command: tail -f /dev/null
     networks: [red_aduana]
     working_dir: /app
 
-  # --- 3. MÓDULO MASCOTA ---
+  # ==========================================
+  # 3. MÓDULO MASCOTA
+  # ==========================================
   db-mascota:
     image: mysql:8.0
     container_name: db_mascota
@@ -48,18 +76,32 @@ services:
       MYSQL_DATABASE: db_mascota
     ports: ["33062:3306"]
     networks: [red_aduana]
+    volumes:
+      - vol_db_mascota:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
 
   ms-mascota:
     image: maven:3.9-eclipse-temurin-21
     container_name: ms_mascota
     ports: ["8082:8080"]
-    depends_on: [db-mascota]
+    depends_on:
+      db-mascota:
+        condition: service_healthy
+      ms-usuario:
+        condition: service_started
+    environment:
+      - USUARIOS_HOST=ms_usuario
     volumes: ["./modulo-mascota/codigo-fuente:/app"]
     command: tail -f /dev/null
     networks: [red_aduana]
     working_dir: /app
 
-  # --- 4. MÓDULO MENOR ---
+  # ==========================================
+  # 4. MÓDULO MENOR
+  # ==========================================
   db-menor:
     image: mysql:8.0
     container_name: db_menor
@@ -68,18 +110,32 @@ services:
       MYSQL_DATABASE: db_menor
     ports: ["33063:3306"]
     networks: [red_aduana]
+    volumes:
+      - vol_db_menor:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
 
   ms-menor:
     image: maven:3.9-eclipse-temurin-21
     container_name: ms_menor
     ports: ["8083:8080"]
-    depends_on: [db-menor]
+    depends_on:
+      db-menor:
+        condition: service_healthy
+      ms-usuario:
+        condition: service_started
+    environment:
+      - USUARIOS_HOST=ms_usuario
     volumes: ["./modulo-menor/codigo-fuente:/app"]
     command: tail -f /dev/null
     networks: [red_aduana]
     working_dir: /app
 
-  # --- 5. MÓDULO DECLARACIÓN ---
+  # ==========================================
+  # 5. MÓDULO DECLARACIÓN
+  # ==========================================
   db-declaracion:
     image: mysql:8.0
     container_name: db_declaracion
@@ -88,18 +144,41 @@ services:
       MYSQL_DATABASE: db_declaracion
     ports: ["33064:3306"]
     networks: [red_aduana]
+    volumes:
+      - vol_db_declaracion:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
 
   ms-declaracion:
     image: maven:3.9-eclipse-temurin-21
     container_name: ms_declaracion
     ports: ["8084:8080"]
-    depends_on: [db-declaracion]
+    depends_on:
+      db-declaracion:
+        condition: service_healthy
+      ms-usuario:
+        condition: service_started
+      ms-vehiculo:
+        condition: service_started
+      ms-mascota:
+        condition: service_started
+      ms-menor:
+        condition: service_started
+    environment:
+      - USUARIOS_HOST=ms_usuario
+      - VEHICULOS_HOST=ms_vehiculo
+      - MASCOTAS_HOST=ms_mascota
+      - MENORES_HOST=ms_menor
     volumes: ["./modulo-declaracion/codigo-fuente:/app"]
     command: tail -f /dev/null
     networks: [red_aduana]
     working_dir: /app
 
-  # --- 6. MÓDULO ADUANA-ARG ---
+  # ==========================================
+  # 6. MÓDULO ADUANA-ARG
+  # ==========================================
   db-aduana:
     image: mysql:8.0
     container_name: db_aduana
@@ -108,18 +187,32 @@ services:
       MYSQL_DATABASE: db_aduana
     ports: ["33065:3306"]
     networks: [red_aduana]
+    volumes:
+      - vol_db_aduana:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
 
   ms-aduana:
     image: maven:3.9-eclipse-temurin-21
     container_name: ms_aduana
     ports: ["8085:8080"]
-    depends_on: [db-aduana]
+    depends_on:
+      db-aduana:
+        condition: service_healthy
+      ms-declaracion:
+        condition: service_started
+    environment:
+      - DECLARACIONES_HOST=ms_declaracion
     volumes: ["./modulo-aduana-arg/codigo-fuente:/app"]
     command: tail -f /dev/null
     networks: [red_aduana]
     working_dir: /app
 
-  # --- 7. MÓDULO CORREO ---
+  # ==========================================
+  # 7. MÓDULO CORREO
+  # ==========================================
   db-correo:
     image: mysql:8.0
     container_name: db_correo
@@ -128,18 +221,32 @@ services:
       MYSQL_DATABASE: db_correo
     ports: ["33066:3306"]
     networks: [red_aduana]
+    volumes:
+      - vol_db_correo:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
 
   ms-correo:
     image: maven:3.9-eclipse-temurin-21
     container_name: ms_correo
     ports: ["8086:8080"]
-    depends_on: [db-correo]
+    depends_on:
+      db-correo:
+        condition: service_healthy
+      ms-declaracion:
+        condition: service_started
+    environment:
+      - DECLARACIONES_HOST=ms_declaracion
     volumes: ["./modulo-correo/codigo-fuente:/app"]
     command: tail -f /dev/null
     networks: [red_aduana]
     working_dir: /app
 
-  # --- 8. MÓDULO QR ---
+  # ==========================================
+  # 8. MÓDULO QR
+  # ==========================================
   db-qr:
     image: mysql:8.0
     container_name: db_qr
@@ -148,18 +255,32 @@ services:
       MYSQL_DATABASE: db_qr
     ports: ["33067:3306"]
     networks: [red_aduana]
+    volumes:
+      - vol_db_qr:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
 
   ms-qr:
     image: maven:3.9-eclipse-temurin-21
     container_name: ms_qr
     ports: ["8087:8080"]
-    depends_on: [db-qr]
+    depends_on:
+      db-qr:
+        condition: service_healthy
+      ms-declaracion:
+        condition: service_started
+    environment:
+      - DECLARACIONES_HOST=ms_declaracion
     volumes: ["./modulo-qr/codigo-fuente:/app"]
     command: tail -f /dev/null
     networks: [red_aduana]
     working_dir: /app
 
-  # --- 9. MÓDULO REPORTE ---
+  # ==========================================
+  # 9. MÓDULO REPORTE
+  # ==========================================
   db-reporte:
     image: mysql:8.0
     container_name: db_reporte
@@ -168,18 +289,32 @@ services:
       MYSQL_DATABASE: db_reporte
     ports: ["33068:3306"]
     networks: [red_aduana]
+    volumes:
+      - vol_db_reporte:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
 
   ms-reporte:
     image: maven:3.9-eclipse-temurin-21
     container_name: ms_reporte
     ports: ["8088:8080"]
-    depends_on: [db-reporte]
+    depends_on:
+      db-reporte:
+        condition: service_healthy
+      ms-declaracion:
+        condition: service_started
+    environment:
+      - DECLARACIONES_HOST=ms_declaracion
     volumes: ["./modulo-reporte/codigo-fuente:/app"]
     command: tail -f /dev/null
     networks: [red_aduana]
     working_dir: /app
 
-  # --- 10. MÓDULO TURNO ---
+  # ==========================================
+  # 10. MÓDULO TURNO
+  # ==========================================
   db-turno:
     image: mysql:8.0
     container_name: db_turno
@@ -188,16 +323,43 @@ services:
       MYSQL_DATABASE: db_turno
     ports: ["33069:3306"]
     networks: [red_aduana]
+    volumes:
+      - vol_db_turno:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
 
   ms-turno:
     image: maven:3.9-eclipse-temurin-21
     container_name: ms_turno
     ports: ["8089:8080"]
-    depends_on: [db-turno]
+    depends_on:
+      db-turno:
+        condition: service_healthy
     volumes: ["./modulo-turno/codigo-fuente:/app"]
     command: tail -f /dev/null
     networks: [red_aduana]
     working_dir: /app
 
+# ==========================================
+# Volúmenes Globales Declarados (Persistencia)
+# ==========================================
+volumes:
+  vol_db_usuario:
+  vol_db_vehiculo:
+  vol_db_mascota:
+  vol_db_menor:
+  vol_db_declaracion:
+  vol_db_aduana:
+  vol_db_correo:
+  vol_db_qr:
+  vol_db_reporte:
+  vol_db_turno:
+
+# ==========================================
+# Red Interna de Docker
+# ==========================================
 networks:
   red_aduana:
+    driver: bridge

@@ -1,6 +1,7 @@
 package cl.duoc.vehiculos.controller;
 
-import cl.duoc.vehiculos.model.Vehiculo;
+import cl.duoc.vehiculos.dto.VehiculoCreateDTO;
+import cl.duoc.vehiculos.dto.VehiculoDTO;
 import cl.duoc.vehiculos.service.VehiculoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,44 +12,37 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/vehiculos")
+@RequestMapping("/api/v1/vehiculos")
 public class VehiculoController {
 
     @Autowired
     private VehiculoService service;
 
     @GetMapping
-    public ResponseEntity<List<Vehiculo>> obtenerTodos() {
-        return new ResponseEntity<>(service.obtenerTodos(), HttpStatus.OK);
-    }
-
-    @PostMapping("/registro")
-    public ResponseEntity<Vehiculo> registrar(@Valid @RequestBody Vehiculo vehiculo) {
-        Vehiculo nuevo = service.guardar(vehiculo);
-        return new ResponseEntity<>(nuevo, HttpStatus.CREATED);
+    public ResponseEntity<List<VehiculoDTO>> listar() {
+        return ResponseEntity.ok(service.listarTodos());
     }
 
     @GetMapping("/{patente}")
-    public ResponseEntity<Vehiculo> buscarPorPatente(@PathVariable String patente) {
-        Vehiculo v = service.buscarPorPatente(patente);
-        if (v != null) {
-            return new ResponseEntity<>(v, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<VehiculoDTO> obtenerPorPatente(@PathVariable String patente) {
+        return ResponseEntity.ok(service.buscarPorPatente(patente));
+    }
+
+    @PostMapping
+    public ResponseEntity<VehiculoDTO> crear(@Valid @RequestBody VehiculoCreateDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.crear(dto));
     }
 
     @PutMapping("/{patente}")
-    public ResponseEntity<Vehiculo> actualizar(@PathVariable String patente, @Valid @RequestBody Vehiculo datos) {
-        Vehiculo actualizado = service.actualizar(patente, datos);
-        if (actualizado != null) {
-            return new ResponseEntity<>(actualizado, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<VehiculoDTO> actualizar(
+            @PathVariable String patente, 
+            @Valid @RequestBody VehiculoCreateDTO dto) {
+        return ResponseEntity.ok(service.actualizar(patente, dto));
     }
 
     @DeleteMapping("/{patente}")
-    public ResponseEntity<String> eliminar(@PathVariable String patente) {
-        service.eliminarPorPatente(patente);
-        return new ResponseEntity<>("Vehículo eliminado", HttpStatus.OK);
+    public ResponseEntity<Void> eliminar(@PathVariable String patente) {
+        service.eliminar(patente);
+        return ResponseEntity.noContent().build(); 
     }
 }
