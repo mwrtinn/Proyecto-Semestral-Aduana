@@ -9,6 +9,7 @@
 | Mascotas | 8082 | db_mascota | Registro de mascotas, trazabilidad de microchips y control sanitario (vacunas) |
 | Menores | 8083 | db_menor| Validación de permisos de viaje y registro de actas notariales |
 | Declaraciones | 8084 | db_declaracion | Declaración jurada de mercancías y valoración aduanera (USD) |
+| Aduanas | 8085 | db_aduana | Registro de cruces fronterizos, tracking de complejos y validación de ingresos/egresos con ms-usuario |
 ### Despliegue Técnico
 - **Instancia:** AWS EC2 t3.large (Ubuntu 24.04)
 - **Comando de inicio:** `docker compose up -d`
