@@ -10,6 +10,7 @@
 | Menores | 8083 | db_menor| Validación de permisos de viaje y registro de actas notariales |
 | Declaraciones | 8084 | db_declaracion | Declaración jurada de mercancías y valoración aduanera (USD) |
 | Aduanas | 8085 | db_aduana | Registro de cruces fronterizos, tracking de complejos y validación de ingresos/egresos con ms-usuario |
+| Correos | 8086 | db_correo | Registro de encomiendas internacionales, tracking de paquetes, control de peso y gestión de estado aduanero (Retenido/Liberado). |
 ### Despliegue Técnico
 - **Instancia:** AWS EC2 t3.large (Ubuntu 24.04)
 - **Comando de inicio:** `docker compose up -d`
