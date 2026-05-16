@@ -13,6 +13,7 @@
 | Correos | 8086 | db_correo | Registro de encomiendas internacionales, tracking de paquetes, control de peso y gestión de estado aduanero (Retenido/Liberado). |
 | Códigos QR | 8087 | db_qr | Generación y validación de Pases QR de aduana para ciudadanos, con verificación de identidad mediante ms-usuario. |
 | Turnos | 8088 | db_turno | Gestión de horarios y asignaciones de funcionarios a puestos de control fronterizo, con validación de identidad mediante ms-usuario. |
+| Reportes | 8089 | db_reporte | Registro y gestión de incidentes, contrabando o fiscalizaciones aduaneras con validación mediante ms-usuario. |
 ### Despliegue Técnico
 - **Instancia:** AWS EC2 t3.large (Ubuntu 24.04)
 - **Comando de inicio:** `docker compose up -d`
