@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name = "ms-usuario", url = "${usuarios.service.url}")
 public interface UsuarioFeignClient {
-    @GetMapping("/api/v1/usuarios/{rut}")
+    
+    @GetMapping("/{rut}")
     UsuarioDTO obtenerPorRut(@PathVariable("rut") String rut);
 }
