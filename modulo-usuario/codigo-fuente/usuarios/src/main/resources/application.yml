@@ -1,0 +1,31 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: MS-USUARIO
+  datasource:
+    url: jdbc:mysql://db_usuario:3306/db_usuario?createDatabaseIfNotExist=true
+    username: root
+    password: root_password
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /doc/swagger-ui.html
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://ms-eureka:8761/eureka/
+  instance:
+    prefer-ip-address: true
