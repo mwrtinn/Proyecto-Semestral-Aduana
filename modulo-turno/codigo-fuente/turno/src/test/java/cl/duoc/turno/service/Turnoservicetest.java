@@ -1,0 +1,168 @@
+package cl.duoc.turno.service;
+
+import cl.duoc.turno.client.UsuarioFeignClient;
+import cl.duoc.turno.dto.TurnoDTO;
+import cl.duoc.turno.dto.TurnoCreateDTO;
+import cl.duoc.turno.model.Turno;
+import cl.duoc.turno.repository.TurnoRepository;
+import cl.duoc.turno.service.TurnoService;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class TurnoServiceTest {
+
+    @Mock
+    private TurnoRepository turnoRepository;
+
+    @Mock
+    private UsuarioFeignClient usuarioClient;
+
+    @InjectMocks
+    private TurnoService service;
+
+    @Test
+    @DisplayName("Debe retornar un turno cuando se busca por un ID existente")
+    void debeRetornarTurnoPorId() {
+        // Given
+        Long idBuscado = 1L;
+        Turno mockTurno = new Turno();
+        mockTurno.setId(idBuscado);
+        mockTurno.setRutFuncionario("12345678-9");
+        mockTurno.setPuesto("Control de Aduana");
+
+        when(turnoRepository.findById(idBuscado)).thenReturn(Optional.of(mockTurno));
+        doNothing().when(turnoRepository).delete(mockTurno);
+
+        // When
+        service.eliminarTurno(idBuscado);
+
+        // Then
+        verify(turnoRepository, times(1)).findById(idBuscado);
+        verify(turnoRepository, times(1)).delete(mockTurno);
+    }
+
+    @Test
+    @DisplayName("Debe lanzar excepción cuando se busca un ID que no existe")
+    void debeLanzarExcepcionPorIdNoEncontrado() {
+        // Given
+        Long idInexistente = 99L;
+        when(turnoRepository.findById(idInexistente)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(RuntimeException.class, () -> {
+            service.eliminarTurno(idInexistente);
+        });
+
+        verify(turnoRepository, times(1)).findById(idInexistente);
+    }
+
+    @Test
+    @DisplayName("Debe retornar la lista completa de turnos")
+    void debeRetornarListaDeTurnos() {
+        // Given
+        Turno t1 = new Turno(); t1.setRutFuncionario("12345678-9"); t1.setPuesto("Control de Aduana");
+        Turno t2 = new Turno(); t2.setRutFuncionario("98765432-1"); t2.setPuesto("Revisión de Equipaje");
+
+        when(turnoRepository.findAll()).thenReturn(Arrays.asList(t1, t2));
+
+        // When
+        List<TurnoDTO> resultado = service.listarTurnos();
+
+        // Then
+        assertNotNull(resultado);
+        assertEquals(2, resultado.size());
+        verify(turnoRepository, times(1)).findAll();
+    }
+
+    @Test
+    @DisplayName("Debe crear un turno exitosamente")
+    void debeCrearTurno() {
+        // Given
+        TurnoCreateDTO nuevoTurnoDTO = new TurnoCreateDTO();
+        nuevoTurnoDTO.setRutFuncionario("12345678-9");
+        nuevoTurnoDTO.setPuesto("Control de Aduana");
+        nuevoTurnoDTO.setFechaInicio(LocalDateTime.of(2026, 6, 1, 8, 0));
+        nuevoTurnoDTO.setFechaFin(LocalDateTime.of(2026, 6, 1, 16, 0));
+        nuevoTurnoDTO.setEstado("ACTIVO");
+
+        Turno mockTurno = new Turno();
+        mockTurno.setId(1L);
+        mockTurno.setRutFuncionario("12345678-9");
+
+        when(usuarioClient.obtenerPorRut(anyString())).thenReturn(null);
+        when(turnoRepository.save(any(Turno.class))).thenReturn(mockTurno);
+
+        // When
+        TurnoDTO resultado = service.asignarTurno(nuevoTurnoDTO);
+
+        // Then
+        assertNotNull(resultado);
+        verify(turnoRepository, times(1)).save(any(Turno.class));
+        verify(usuarioClient, times(1)).obtenerPorRut("12345678-9");
+    }
+
+    @Test
+    @DisplayName("Debe actualizar un turno existente")
+    void debeActualizarTurno() {
+        // Given
+        Long idActualizar = 1L;
+
+        TurnoCreateDTO dtoActualizacion = new TurnoCreateDTO();
+        dtoActualizacion.setRutFuncionario("12345678-9");
+        dtoActualizacion.setPuesto("Revisión de Equipaje");
+        dtoActualizacion.setFechaInicio(LocalDateTime.of(2026, 6, 2, 8, 0));
+        dtoActualizacion.setFechaFin(LocalDateTime.of(2026, 6, 2, 16, 0));
+        dtoActualizacion.setEstado("ACTIVO");
+
+        Turno turnoExistente = new Turno();
+        turnoExistente.setId(idActualizar);
+        turnoExistente.setRutFuncionario("12345678-9");
+        turnoExistente.setPuesto("Control de Aduana");
+
+        when(turnoRepository.findById(idActualizar)).thenReturn(Optional.of(turnoExistente));
+        when(usuarioClient.obtenerPorRut(anyString())).thenReturn(null);
+        when(turnoRepository.save(any(Turno.class))).thenReturn(turnoExistente);
+
+        // When
+        TurnoDTO resultado = service.actualizarTurno(idActualizar, dtoActualizacion);
+
+        // Then
+        assertNotNull(resultado);
+        verify(turnoRepository, times(1)).findById(idActualizar);
+        verify(turnoRepository, times(1)).save(any(Turno.class));
+    }
+
+    @Test
+    @DisplayName("Debe eliminar un turno por ID")
+    void debeEliminarTurno() {
+        // Given
+        Long idEliminar = 1L;
+        Turno turnoExistente = new Turno();
+        turnoExistente.setId(idEliminar);
+
+        when(turnoRepository.findById(idEliminar)).thenReturn(Optional.of(turnoExistente));
+        doNothing().when(turnoRepository).delete(turnoExistente);
+
+        // When
+        service.eliminarTurno(idEliminar);
+
+        // Then
+        verify(turnoRepository, times(1)).findById(idEliminar);
+        verify(turnoRepository, times(1)).delete(turnoExistente);
+    }
+}
