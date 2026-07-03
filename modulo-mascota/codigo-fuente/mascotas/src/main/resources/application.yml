@@ -1,0 +1,37 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: ms-mascotas
+  
+  datasource:
+    url: jdbc:mysql://db_mascota:3306/db_mascota?createDatabaseIfNotExist=true
+    username: root
+    password: root_password
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+usuarios:
+  service:
+    url: http://${USUARIOS_HOST:ms-usuario}:8080/api/v1/usuarios
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operationsSorter: alpha
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://ms-eureka:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    ip-address: 172.31.88.139  
