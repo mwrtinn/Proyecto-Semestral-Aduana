@@ -1,7 +1,7 @@
 package cl.duoc.usuarios.repository;
 
 import cl.duoc.usuarios.model.Usuario;
-import cl.duoc.usuarios.model.Rol; // <-- Importación del Enum
+import cl.duoc.usuarios.model.Rol;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +34,7 @@ class UsuarioRepositoryTest {
         Usuario guardado = repository.save(usuario);
 
         assertNotNull(guardado.getId());
+        assertEquals("11111111-1", guardado.getRut());
     }
 
     @Test
@@ -45,13 +46,13 @@ class UsuarioRepositoryTest {
         usuario.setEmail("correo2@aduana.cl");
         usuario.setPassword("123456");
         usuario.setRol(Rol.VIAJERO); 
-        
         Usuario guardado = repository.save(usuario);
+        Long idBuscado = guardado.getId();
 
-        Optional<Usuario> encontrado = repository.findById(guardado.getId());
+        Optional<Usuario> encontrado = repository.findById(idBuscado);
 
         assertTrue(encontrado.isPresent());
-        assertEquals(guardado.getId(), encontrado.get().getId());
+        assertEquals(idBuscado, encontrado.get().getId());
     }
 
     @Test
@@ -63,14 +64,12 @@ class UsuarioRepositoryTest {
         u1.setEmail("correo3@aduana.cl"); 
         u1.setPassword("123456");
         u1.setRol(Rol.VIAJERO);      
-        
         Usuario u2 = new Usuario(); 
         u2.setRut("44444444-4"); 
         u2.setNombre("Usuario Dos"); 
         u2.setEmail("correo4@aduana.cl"); 
         u2.setPassword("123456");
         u2.setRol(Rol.VIAJERO);     
-        
         repository.save(u1);
         repository.save(u2);
 

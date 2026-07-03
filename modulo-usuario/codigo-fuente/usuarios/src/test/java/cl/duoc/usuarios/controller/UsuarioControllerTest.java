@@ -2,7 +2,7 @@ package cl.duoc.usuarios.controller;
 
 import cl.duoc.usuarios.dto.UsuarioCreateDTO;
 import cl.duoc.usuarios.dto.UsuarioDTO;
-import cl.duoc.usuarios.model.Rol; // <-- Importación agregada
+import cl.duoc.usuarios.model.Rol;
 import cl.duoc.usuarios.service.UsuarioService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,9 +16,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+// 👇 AQUI ESTA LA IMPORTACION QUE FALTABA 👇
+import static org.junit.jupiter.api.Assertions.*;
+
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -45,13 +49,18 @@ class UsuarioControllerTest {
     @Test
     @DisplayName("Verificar status 200 OK al listar o buscar")
     void probarStatus200() throws Exception {
+        String rutBuscado = "12345678-9";
         UsuarioDTO dto = new UsuarioDTO();
-        dto.setRut("12345678-9");
-        
-        lenient().when(usuarioService.buscarPorRut(anyString())).thenReturn(dto);
+        dto.setRut(rutBuscado);
+        dto.setNombre("Juan Perez");
+        when(usuarioService.buscarPorRut(rutBuscado)).thenReturn(dto);
 
-        mockMvc.perform(get(BASE_URL + "/12345678-9"))
-                .andExpect(status().isOk()); 
+        mockMvc.perform(get(BASE_URL + "/{rut}", rutBuscado))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rut").value(rutBuscado))
+                .andExpect(jsonPath("$.nombre").value("Juan Perez"));
+
+        verify(usuarioService, times(1)).buscarPorRut(rutBuscado);
     }
 
     @Test
@@ -63,33 +72,53 @@ class UsuarioControllerTest {
         peticion.setEmail("martinf@aduana.cl");
         peticion.setPassword("123456"); 
         peticion.setRol(Rol.VIAJERO); 
-        
         UsuarioDTO respuesta = new UsuarioDTO();
         respuesta.setRut("99999999-9");
-
-        lenient().when(usuarioService.crear(any(UsuarioCreateDTO.class))).thenReturn(respuesta);
+        respuesta.setNombre("Nuevo Ingreso");
+        when(usuarioService.crear(any(UsuarioCreateDTO.class))).thenReturn(respuesta);
 
         mockMvc.perform(post(BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(peticion)))
-                .andExpect(status().isCreated()); 
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.rut").value("99999999-9"))
+                .andExpect(jsonPath("$.nombre").value("Nuevo Ingreso"));
+
+        verify(usuarioService, times(1)).crear(any(UsuarioCreateDTO.class));
     }
 
     @Test
     @DisplayName("Verificar status 400 Bad Request con peticion invalida")
     void probarStatus400() throws Exception {
+        UsuarioCreateDTO peticionInvalida = new UsuarioCreateDTO();
+        peticionInvalida.setRut(""); 
+        peticionInvalida.setNombre("");
+
         mockMvc.perform(post(BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{ JSON_MALFORMADO : faltan_comillas ]"))
-                .andExpect(status().isBadRequest()); 
+                .content(objectMapper.writeValueAsString(peticionInvalida)))
+                .andExpect(status().isBadRequest());
+
+        verify(usuarioService, times(0)).crear(any());
     }
 
     @Test
-    @DisplayName("Verificar status 404 Not Found cuando no existe")
+    @DisplayName("Verificar excepcion cuando no existe el RUT (Simulando 404)")
     void probarStatus404() throws Exception {
-        lenient().when(usuarioService.buscarPorRut(anyString())).thenThrow(new RuntimeException("No encontrado"));
+        String rutInexistente = "00000000-0";
+        when(usuarioService.buscarPorRut(rutInexistente)).thenThrow(new RuntimeException("No encontrado"));
+        Exception excepcionCapturada = null;
 
-        mockMvc.perform(get("/ruta-falsa-que-no-existe-para-forzar-404"))
-                .andExpect(status().isNotFound()); 
+        try {
+            mockMvc.perform(get(BASE_URL + "/{rut}", rutInexistente));
+        } catch (Exception e) {
+            excepcionCapturada = e;
+        }
+
+        assertNotNull(excepcionCapturada, "Debe lanzarse una excepcion");
+        assertTrue(excepcionCapturada.getCause() instanceof RuntimeException);
+        assertEquals("No encontrado", excepcionCapturada.getCause().getMessage());
+        
+        verify(usuarioService, times(1)).buscarPorRut(rutInexistente);
     }
 }
