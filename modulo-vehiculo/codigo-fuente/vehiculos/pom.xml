@@ -6,30 +6,29 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>4.0.6</version>
-        <relativePath/> </parent>
+        <relativePath/> 
+    </parent>
+    
     <groupId>cl.duoc</groupId>
     <artifactId>vehiculos</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>vehiculos</name>
-    <description/>
-    <url/>
-    <licenses>
-        <license/>
-    </licenses>
-    <developers>
-        <developer/>
-    </developers>
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
+    <description>Microservicio de Vehiculos</description>
+    
     <properties>
         <java.version>21</java.version>
         <spring-cloud.version>2025.1.1</spring-cloud.version>
     </properties>
+    
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -57,21 +56,18 @@
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
 
-        <!-- Swagger / OpenAPI UI -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.8.9</version>
         </dependency>
 
-        <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
 
-        <!-- H2 para tests de repositorio -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
