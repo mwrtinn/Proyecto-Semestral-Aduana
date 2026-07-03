@@ -1,6 +1,5 @@
-package cl.duoc.ms_vehiculos.controller;
+package cl.duoc.vehiculos.controller;
 
-import cl.duoc.vehiculos.controller.VehiculoController;
 import cl.duoc.vehiculos.dto.VehiculoCreateDTO;
 import cl.duoc.vehiculos.dto.VehiculoDTO;
 import cl.duoc.vehiculos.service.VehiculoService;

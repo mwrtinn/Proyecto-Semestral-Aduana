@@ -1,7 +1,6 @@
-package cl.duoc.ms_vehiculos.repository;
+package cl.duoc.vehiculos.repository;
 
 import cl.duoc.vehiculos.model.Vehiculo;
-import cl.duoc.vehiculos.repository.VehiculoRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

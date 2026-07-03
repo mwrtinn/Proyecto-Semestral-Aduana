@@ -1,4 +1,4 @@
-package cl.duoc.ms_vehiculos;
+package cl.duoc.vehiculos;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

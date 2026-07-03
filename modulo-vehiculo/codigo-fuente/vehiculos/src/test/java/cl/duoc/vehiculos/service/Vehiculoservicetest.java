@@ -1,11 +1,10 @@
-package cl.duoc.ms_vehiculos.service;
+package cl.duoc.vehiculos.service;
 
 import cl.duoc.vehiculos.client.UsuarioFeignClient;
 import cl.duoc.vehiculos.dto.VehiculoDTO;
 import cl.duoc.vehiculos.dto.VehiculoCreateDTO;
 import cl.duoc.vehiculos.model.Vehiculo;
 import cl.duoc.vehiculos.repository.VehiculoRepository;
-import cl.duoc.vehiculos.service.VehiculoService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
