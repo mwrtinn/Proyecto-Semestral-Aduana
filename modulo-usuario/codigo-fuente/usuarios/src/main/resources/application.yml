@@ -29,3 +29,4 @@ eureka:
       defaultZone: http://ms-eureka:8761/eureka/
   instance:
     prefer-ip-address: true
+    ip-address: 172.31.88.139  
