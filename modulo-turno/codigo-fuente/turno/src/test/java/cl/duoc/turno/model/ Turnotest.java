@@ -11,12 +11,12 @@ class TurnoTest {
     @Test
     @DisplayName("Debe crear un turno vacío y asignar valores con setters")
     void testSettersYGetters() {
-        // Given
+        // Arrange
         Turno turno = new Turno();
         LocalDateTime inicio = LocalDateTime.of(2026, 6, 1, 8, 0);
         LocalDateTime fin = LocalDateTime.of(2026, 6, 1, 16, 0);
 
-        // When
+        // Act
         turno.setId(1L);
         turno.setRutFuncionario("12345678-9");
         turno.setPuesto("Control de Aduana");
@@ -24,7 +24,7 @@ class TurnoTest {
         turno.setFechaFin(fin);
         turno.setEstado("ACTIVO");
 
-        // Then
+        // Assert
         assertEquals(1L, turno.getId());
         assertEquals("12345678-9", turno.getRutFuncionario());
         assertEquals("Control de Aduana", turno.getPuesto());
@@ -36,14 +36,16 @@ class TurnoTest {
     @Test
     @DisplayName("Debe instanciar correctamente usando el constructor completo")
     void testConstructorCompleto() {
-        // When
+        // Arrange
         Turno turno = new Turno();
+
+        // Act
         turno.setId(2L);
         turno.setRutFuncionario("98765432-1");
         turno.setPuesto("Revisión de Equipaje");
         turno.setEstado("INACTIVO");
 
-        // Then
+        // Assert
         assertEquals(2L, turno.getId());
         assertEquals("98765432-1", turno.getRutFuncionario());
         assertEquals("INACTIVO", turno.getEstado());

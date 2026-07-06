@@ -8,6 +8,7 @@ import cl.duoc.vehiculos.repository.VehiculoRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -36,7 +37,7 @@ class VehiculoServiceTest {
     @Test
     @DisplayName("Debe retornar un vehículo cuando se busca por una patente existente")
     void debeRetornarVehiculoPorPatente() {
-        // Given
+        // Arrange
         String patenteBuscada = "ABCD12";
         Vehiculo mockVehiculo = new Vehiculo();
         mockVehiculo.setPatente(patenteBuscada);
@@ -44,10 +45,10 @@ class VehiculoServiceTest {
 
         when(repository.findByPatente(patenteBuscada)).thenReturn(Optional.of(mockVehiculo));
 
-        // When
+        // Act
         VehiculoDTO resultado = service.buscarPorPatente(patenteBuscada);
 
-        // Then
+        // Assert
         assertNotNull(resultado);
         verify(repository, times(1)).findByPatente(patenteBuscada);
     }
@@ -55,32 +56,32 @@ class VehiculoServiceTest {
     @Test
     @DisplayName("Debe lanzar excepción cuando se busca una patente que no existe")
     void debeLanzarExcepcionPorPatenteNoEncontrada() {
-        // Given
+        // Arrange
         String patenteInexistente = "XXXX00";
         when(repository.findByPatente(patenteInexistente)).thenReturn(Optional.empty());
 
-        // When & Then
-        assertThrows(RuntimeException.class, () -> {
-            service.buscarPorPatente(patenteInexistente);
-        });
+        // Act
+        Executable accion = () -> service.buscarPorPatente(patenteInexistente);
 
+        // Assert
+        assertThrows(RuntimeException.class, accion);
         verify(repository, times(1)).findByPatente(patenteInexistente);
     }
 
     @Test
     @DisplayName("Debe retornar la lista completa de vehículos")
     void debeRetornarListaDeVehiculos() {
-        // Given
+        // Arrange
         Vehiculo v1 = new Vehiculo(); v1.setMarca("Toyota"); v1.setModelo("Corolla");
         Vehiculo v2 = new Vehiculo(); v2.setMarca("Honda");  v2.setModelo("Civic");
         List<Vehiculo> listaSimulada = Arrays.asList(v1, v2);
 
         when(repository.findAll()).thenReturn(listaSimulada);
 
-        // When
+        // Act
         List<VehiculoDTO> resultado = service.listarTodos();
 
-        // Then
+        // Assert
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
         verify(repository, times(1)).findAll();
@@ -89,7 +90,7 @@ class VehiculoServiceTest {
     @Test
     @DisplayName("Debe crear un vehículo exitosamente")
     void debeCrearVehiculo() {
-        // Given
+        // Arrange
         VehiculoCreateDTO nuevoVehiculoDTO = new VehiculoCreateDTO();
         nuevoVehiculoDTO.setPatente("ABCD12");
         nuevoVehiculoDTO.setMarca("Toyota");
@@ -107,10 +108,10 @@ class VehiculoServiceTest {
         when(usuarioClient.obtenerPorRut(anyString())).thenReturn(null);
         when(repository.save(any(Vehiculo.class))).thenReturn(mockVehiculo);
 
-        // When
+        // Act
         VehiculoDTO resultado = service.crear(nuevoVehiculoDTO);
 
-        // Then
+        // Assert
         assertNotNull(resultado);
         verify(repository, times(1)).save(any(Vehiculo.class));
         verify(usuarioClient, times(1)).obtenerPorRut("12345678-9");
@@ -119,7 +120,7 @@ class VehiculoServiceTest {
     @Test
     @DisplayName("Debe actualizar un vehículo existente")
     void debeActualizarVehiculo() {
-        // Given
+        // Arrange
         String patenteActualizar = "ABCD12";
 
         VehiculoCreateDTO dtoActualizacion = new VehiculoCreateDTO();
@@ -136,10 +137,10 @@ class VehiculoServiceTest {
         when(repository.findByPatente(patenteActualizar)).thenReturn(Optional.of(vehiculoExistente));
         when(repository.save(any(Vehiculo.class))).thenReturn(vehiculoExistente);
 
-        // When
+        // Act
         VehiculoDTO resultado = service.actualizar(patenteActualizar, dtoActualizacion);
 
-        // Then
+        // Assert
         assertNotNull(resultado);
         verify(repository, times(1)).findByPatente(patenteActualizar);
         verify(repository, times(1)).save(any(Vehiculo.class));
@@ -148,7 +149,7 @@ class VehiculoServiceTest {
     @Test
     @DisplayName("Debe eliminar un vehículo por patente")
     void debeEliminarVehiculo() {
-        // Given
+        // Arrange
         String patenteEliminar = "ABCD12";
         Vehiculo vehiculoExistente = new Vehiculo();
         vehiculoExistente.setPatente(patenteEliminar);
@@ -156,10 +157,10 @@ class VehiculoServiceTest {
         when(repository.findByPatente(patenteEliminar)).thenReturn(Optional.of(vehiculoExistente));
         doNothing().when(repository).delete(vehiculoExistente);
 
-        // When
+        // Act
         service.eliminar(patenteEliminar);
 
-        // Then
+        // Assert
         verify(repository, times(1)).findByPatente(patenteEliminar);
         verify(repository, times(1)).delete(vehiculoExistente);
     }

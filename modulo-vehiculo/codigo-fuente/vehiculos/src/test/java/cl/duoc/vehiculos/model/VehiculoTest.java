@@ -9,10 +9,10 @@ class VehiculoTest {
     @Test
     @DisplayName("Debe crear un vehículo vacío y asignar valores con setters")
     void testSettersYGetters() {
-        // Given
+        // Arrange
         Vehiculo vehiculo = new Vehiculo();
 
-        // When
+        // Act
         vehiculo.setId(1L);
         vehiculo.setVin("1HGBH41JXMN109186");
         vehiculo.setPatente("ABCD12");
@@ -22,7 +22,7 @@ class VehiculoTest {
         vehiculo.setPaisOrigen("Japón");
         vehiculo.setRutDueno("12345678-9");
 
-        // Then
+        // Assert
         assertEquals(1L, vehiculo.getId());
         assertEquals("1HGBH41JXMN109186", vehiculo.getVin());
         assertEquals("ABCD12", vehiculo.getPatente());
@@ -36,8 +36,10 @@ class VehiculoTest {
     @Test
     @DisplayName("Debe instanciar correctamente usando el constructor completo")
     void testConstructorCompleto() {
-        // When
+        // Arrange
         Vehiculo vehiculo = new Vehiculo();
+        
+        // Act
         vehiculo.setId(2L);
         vehiculo.setVin("2T1BURHE0JC043821");
         vehiculo.setPatente("EFGH34");
@@ -47,7 +49,7 @@ class VehiculoTest {
         vehiculo.setPaisOrigen("México");
         vehiculo.setRutDueno("98765432-1");
 
-        // Then
+        // Assert
         assertEquals(2L, vehiculo.getId());
         assertEquals("Honda", vehiculo.getMarca());
         assertEquals("EFGH34", vehiculo.getPatente());

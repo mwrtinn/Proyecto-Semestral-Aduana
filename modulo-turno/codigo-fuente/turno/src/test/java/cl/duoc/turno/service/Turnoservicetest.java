@@ -9,6 +9,7 @@ import cl.duoc.turno.service.TurnoService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -38,7 +39,7 @@ class TurnoServiceTest {
     @Test
     @DisplayName("Debe retornar un turno cuando se busca por un ID existente")
     void debeRetornarTurnoPorId() {
-        // Given
+        // Arrange
         Long idBuscado = 1L;
         Turno mockTurno = new Turno();
         mockTurno.setId(idBuscado);
@@ -48,10 +49,10 @@ class TurnoServiceTest {
         when(turnoRepository.findById(idBuscado)).thenReturn(Optional.of(mockTurno));
         doNothing().when(turnoRepository).delete(mockTurno);
 
-        // When
+        // Act
         service.eliminarTurno(idBuscado);
 
-        // Then
+        // Assert
         verify(turnoRepository, times(1)).findById(idBuscado);
         verify(turnoRepository, times(1)).delete(mockTurno);
     }
@@ -59,31 +60,31 @@ class TurnoServiceTest {
     @Test
     @DisplayName("Debe lanzar excepción cuando se busca un ID que no existe")
     void debeLanzarExcepcionPorIdNoEncontrado() {
-        // Given
+        // Arrange
         Long idInexistente = 99L;
         when(turnoRepository.findById(idInexistente)).thenReturn(Optional.empty());
 
-        // When & Then
-        assertThrows(RuntimeException.class, () -> {
-            service.eliminarTurno(idInexistente);
-        });
+        // Act
+        Executable accion = () -> service.eliminarTurno(idInexistente);
 
+        // Assert
+        assertThrows(RuntimeException.class, accion);
         verify(turnoRepository, times(1)).findById(idInexistente);
     }
 
     @Test
     @DisplayName("Debe retornar la lista completa de turnos")
     void debeRetornarListaDeTurnos() {
-        // Given
+        // Arrange
         Turno t1 = new Turno(); t1.setRutFuncionario("12345678-9"); t1.setPuesto("Control de Aduana");
         Turno t2 = new Turno(); t2.setRutFuncionario("98765432-1"); t2.setPuesto("Revisión de Equipaje");
 
         when(turnoRepository.findAll()).thenReturn(Arrays.asList(t1, t2));
 
-        // When
+        // Act
         List<TurnoDTO> resultado = service.listarTurnos();
 
-        // Then
+        // Assert
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
         verify(turnoRepository, times(1)).findAll();
@@ -92,7 +93,7 @@ class TurnoServiceTest {
     @Test
     @DisplayName("Debe crear un turno exitosamente")
     void debeCrearTurno() {
-        // Given
+        // Arrange
         TurnoCreateDTO nuevoTurnoDTO = new TurnoCreateDTO();
         nuevoTurnoDTO.setRutFuncionario("12345678-9");
         nuevoTurnoDTO.setPuesto("Control de Aduana");
@@ -107,10 +108,10 @@ class TurnoServiceTest {
         when(usuarioClient.obtenerPorRut(anyString())).thenReturn(null);
         when(turnoRepository.save(any(Turno.class))).thenReturn(mockTurno);
 
-        // When
+        // Act
         TurnoDTO resultado = service.asignarTurno(nuevoTurnoDTO);
 
-        // Then
+        // Assert
         assertNotNull(resultado);
         verify(turnoRepository, times(1)).save(any(Turno.class));
         verify(usuarioClient, times(1)).obtenerPorRut("12345678-9");
@@ -119,7 +120,7 @@ class TurnoServiceTest {
     @Test
     @DisplayName("Debe actualizar un turno existente")
     void debeActualizarTurno() {
-        // Given
+        // Arrange
         Long idActualizar = 1L;
 
         TurnoCreateDTO dtoActualizacion = new TurnoCreateDTO();
@@ -138,10 +139,10 @@ class TurnoServiceTest {
         when(usuarioClient.obtenerPorRut(anyString())).thenReturn(null);
         when(turnoRepository.save(any(Turno.class))).thenReturn(turnoExistente);
 
-        // When
+        // Act
         TurnoDTO resultado = service.actualizarTurno(idActualizar, dtoActualizacion);
 
-        // Then
+        // Assert
         assertNotNull(resultado);
         verify(turnoRepository, times(1)).findById(idActualizar);
         verify(turnoRepository, times(1)).save(any(Turno.class));
@@ -150,7 +151,7 @@ class TurnoServiceTest {
     @Test
     @DisplayName("Debe eliminar un turno por ID")
     void debeEliminarTurno() {
-        // Given
+        // Arrange
         Long idEliminar = 1L;
         Turno turnoExistente = new Turno();
         turnoExistente.setId(idEliminar);
@@ -158,10 +159,10 @@ class TurnoServiceTest {
         when(turnoRepository.findById(idEliminar)).thenReturn(Optional.of(turnoExistente));
         doNothing().when(turnoRepository).delete(turnoExistente);
 
-        // When
+        // Act
         service.eliminarTurno(idEliminar);
 
-        // Then
+        // Assert
         verify(turnoRepository, times(1)).findById(idEliminar);
         verify(turnoRepository, times(1)).delete(turnoExistente);
     }

@@ -25,6 +25,7 @@ class TurnoRepositoryTest {
     @Test
     @DisplayName("Debe guardar un turno (Prueba de save)")
     void probarSave() {
+        // Arrange
         Turno turno = new Turno();
         turno.setRutFuncionario("12345678-9");
         turno.setPuesto("Control de Aduana");
@@ -38,8 +39,10 @@ class TurnoRepositoryTest {
 
         when(turnoRepository.save(any(Turno.class))).thenReturn(guardado);
 
+        // Act
         Turno resultado = turnoRepository.save(turno);
 
+        // Assert
         assertNotNull(resultado.getId());
         verify(turnoRepository, times(1)).save(any(Turno.class));
     }
@@ -47,6 +50,7 @@ class TurnoRepositoryTest {
     @Test
     @DisplayName("Debe buscar un turno por ID (Prueba de findById)")
     void probarFindById() {
+        // Arrange
         Turno guardado = new Turno();
         guardado.setId(2L);
         guardado.setRutFuncionario("98765432-1");
@@ -54,8 +58,10 @@ class TurnoRepositoryTest {
 
         when(turnoRepository.findById(2L)).thenReturn(Optional.of(guardado));
 
+        // Act
         Optional<Turno> encontrado = turnoRepository.findById(2L);
 
+        // Assert
         assertTrue(encontrado.isPresent());
         assertEquals(2L, encontrado.get().getId());
         verify(turnoRepository, times(1)).findById(2L);
@@ -64,13 +70,16 @@ class TurnoRepositoryTest {
     @Test
     @DisplayName("Debe listar todos los turnos (Prueba de findAll)")
     void probarFindAll() {
+        // Arrange
         Turno t1 = new Turno(); t1.setRutFuncionario("12345678-9"); t1.setPuesto("Control de Aduana");
         Turno t2 = new Turno(); t2.setRutFuncionario("98765432-1"); t2.setPuesto("Revisión de Equipaje");
 
         when(turnoRepository.findAll()).thenReturn(Arrays.asList(t1, t2));
 
+        // Act
         List<Turno> lista = turnoRepository.findAll();
 
+        // Assert
         assertTrue(lista.size() >= 2);
         verify(turnoRepository, times(1)).findAll();
     }

@@ -10,6 +10,7 @@ import cl.duoc.menores.repository.MenorRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -38,7 +39,7 @@ class MenorServiceTest {
     @Test
     @DisplayName("Debe retornar un menor cuando se busca por un RUT existente")
     void debeRetornarMenorPorRut() {
-        // Given
+        // Arrange
         String rutBuscado = "12345678-9";
         Menor mockMenor = new Menor();
         mockMenor.setRut(rutBuscado);
@@ -46,10 +47,10 @@ class MenorServiceTest {
 
         when(repository.findByRut(rutBuscado)).thenReturn(Optional.of(mockMenor));
 
-        // When
+        // Act
         MenorDTO resultado = service.obtener(rutBuscado);
 
-        // Then
+        // Assert
         assertNotNull(resultado);
         assertEquals(rutBuscado, resultado.getRut());
         verify(repository, times(1)).findByRut(rutBuscado);
@@ -58,32 +59,32 @@ class MenorServiceTest {
     @Test
     @DisplayName("Debe lanzar excepción cuando se busca un RUT que no existe")
     void debeLanzarExcepcionPorRutNoEncontrado() {
-        // Given
+        // Arrange
         String rutInexistente = "00000000-0";
         when(repository.findByRut(rutInexistente)).thenReturn(Optional.empty());
 
-        // When & Then
-        assertThrows(RecursoNoEncontradoException.class, () -> {
-            service.obtener(rutInexistente);
-        });
+        // Act
+        Executable accion = () -> service.obtener(rutInexistente);
 
+        // Assert
+        assertThrows(RecursoNoEncontradoException.class, accion);
         verify(repository, times(1)).findByRut(rutInexistente);
     }
 
     @Test
     @DisplayName("Debe retornar la lista completa de menores")
     void debeRetornarListaDeMenores() {
-        // Given
+        // Arrange
         Menor m1 = new Menor(); m1.setNombre("Ana"); m1.setRut("11111111-1");
         Menor m2 = new Menor(); m2.setNombre("Luis"); m2.setRut("22222222-2");
         List<Menor> listaSimulada = Arrays.asList(m1, m2);
 
         when(repository.findAll()).thenReturn(listaSimulada);
 
-        // When
+        // Act
         List<MenorDTO> resultado = service.listar();
 
-        // Then
+        // Assert
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
         verify(repository, times(1)).findAll();
@@ -92,7 +93,7 @@ class MenorServiceTest {
     @Test
     @DisplayName("Debe crear un menor exitosamente")
     void debeCrearMenor() {
-        // Given
+        // Arrange
         MenorCreateDTO nuevoMenorDTO = new MenorCreateDTO();
         nuevoMenorDTO.setNombre("Juanito Pérez");
         nuevoMenorDTO.setRut("12345678-9");
@@ -109,10 +110,10 @@ class MenorServiceTest {
         when(usuarioClient.obtenerPorRut(anyString())).thenReturn(null);
         when(repository.save(any(Menor.class))).thenReturn(mockMenor);
 
-        // When
+        // Act
         MenorDTO resultado = service.registrar(nuevoMenorDTO);
 
-        // Then
+        // Assert
         assertNotNull(resultado);
         verify(repository, times(1)).save(any(Menor.class));
         verify(usuarioClient, times(1)).obtenerPorRut("98765432-1");
@@ -121,7 +122,7 @@ class MenorServiceTest {
     @Test
     @DisplayName("Debe actualizar un menor existente")
     void debeActualizarMenor() {
-        // Given
+        // Arrange
         String rutActualizar = "12345678-9";
 
         MenorCreateDTO dtoActualizacion = new MenorCreateDTO();
@@ -137,10 +138,10 @@ class MenorServiceTest {
         when(repository.findByRut(rutActualizar)).thenReturn(Optional.of(menorExistente));
         when(repository.save(any(Menor.class))).thenReturn(menorExistente);
 
-        // When
+        // Act
         MenorDTO resultado = service.actualizar(rutActualizar, dtoActualizacion);
 
-        // Then
+        // Assert
         assertNotNull(resultado);
         verify(repository, times(1)).findByRut(rutActualizar);
         verify(repository, times(1)).save(any(Menor.class));
@@ -149,7 +150,7 @@ class MenorServiceTest {
     @Test
     @DisplayName("Debe eliminar un menor por RUT")
     void debeEliminarMenor() {
-        // Given
+        // Arrange
         String rutEliminar = "12345678-9";
         Menor menorExistente = new Menor();
         menorExistente.setRut(rutEliminar);
@@ -157,10 +158,10 @@ class MenorServiceTest {
         when(repository.findByRut(rutEliminar)).thenReturn(Optional.of(menorExistente));
         doNothing().when(repository).delete(menorExistente);
 
-        // When
+        // Act
         service.eliminar(rutEliminar);
 
-        // Then
+        // Assert
         verify(repository, times(1)).findByRut(rutEliminar);
         verify(repository, times(1)).delete(menorExistente);
     }

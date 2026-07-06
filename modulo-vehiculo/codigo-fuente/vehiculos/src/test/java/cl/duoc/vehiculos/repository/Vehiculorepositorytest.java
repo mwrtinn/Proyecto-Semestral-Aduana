@@ -23,6 +23,7 @@ class VehiculoRepositoryTest {
     @Test
     @DisplayName("Debe guardar un vehículo (Prueba de save)")
     void probarSave() {
+        // Arrange
         Vehiculo vehiculo = new Vehiculo();
         vehiculo.setVin("1HGBH41JXMN109186");
         vehiculo.setPatente("AB1234");
@@ -38,8 +39,10 @@ class VehiculoRepositoryTest {
 
         when(repository.save(any(Vehiculo.class))).thenReturn(guardado);
 
+        // Act
         Vehiculo resultado = repository.save(vehiculo);
 
+        // Assert
         assertNotNull(resultado.getId());
         verify(repository, times(1)).save(any(Vehiculo.class));
     }
@@ -47,6 +50,7 @@ class VehiculoRepositoryTest {
     @Test
     @DisplayName("Debe buscar un vehículo por ID (Prueba de findById)")
     void probarFindById() {
+        // Arrange
         Vehiculo guardado = new Vehiculo();
         guardado.setId(2L);
         guardado.setPatente("CD5678");
@@ -54,8 +58,10 @@ class VehiculoRepositoryTest {
 
         when(repository.findById(2L)).thenReturn(Optional.of(guardado));
 
+        // Act
         Optional<Vehiculo> encontrado = repository.findById(2L);
 
+        // Assert
         assertTrue(encontrado.isPresent());
         assertEquals(2L, encontrado.get().getId());
         verify(repository, times(1)).findById(2L);
@@ -64,13 +70,16 @@ class VehiculoRepositoryTest {
     @Test
     @DisplayName("Debe listar todos los vehículos (Prueba de findAll)")
     void probarFindAll() {
+        // Arrange
         Vehiculo v1 = new Vehiculo(); v1.setMarca("Volkswagen"); v1.setPatente("EF9012");
         Vehiculo v2 = new Vehiculo(); v2.setMarca("Nissan");     v2.setPatente("GH3456");
 
         when(repository.findAll()).thenReturn(Arrays.asList(v1, v2));
 
+        // Act
         List<Vehiculo> lista = repository.findAll();
 
+        // Assert
         assertTrue(lista.size() >= 2);
         verify(repository, times(1)).findAll();
     }

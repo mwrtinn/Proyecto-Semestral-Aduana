@@ -26,19 +26,19 @@ class MenorRepositoryTest {
     @Test
     @DisplayName("Debe guardar y recuperar un menor correctamente usando findByRut")
     void testGuardarYBuscarPorRut() {
-        // Given
+        // Arrange
         Menor menor = new Menor();
         menor.setNombre("Juan Pérez");
         menor.setRut("12345678-9");
         menor.setEdad(15);
         menor.setNumeroActa("ACT-001");
         menor.setRutTutor("87654321-0");
-
-        // When
         menorRepository.save(menor);
+
+        // Act
         Optional<Menor> guardado = menorRepository.findByRut("12345678-9");
 
-        // Then
+        // Assert
         assertTrue(guardado.isPresent(), "El menor debería estar presente en la base de datos");
         assertEquals("Juan Pérez", guardado.get().getNombre());
         assertEquals("ACT-001", guardado.get().getNumeroActa());
@@ -47,10 +47,12 @@ class MenorRepositoryTest {
     @Test
     @DisplayName("Debe retornar vacío al buscar un RUT inexistente")
     void testBuscarRutInexistente() {
-        // When
+        // Arrange (No requiere preparación previa de datos)
+        
+        // Act
         Optional<Menor> guardado = menorRepository.findByRut("00000000-0");
 
-        // Then
+        // Assert
         assertFalse(guardado.isPresent(), "El resultado debería ser vacío para un RUT inexistente");
     }
 }

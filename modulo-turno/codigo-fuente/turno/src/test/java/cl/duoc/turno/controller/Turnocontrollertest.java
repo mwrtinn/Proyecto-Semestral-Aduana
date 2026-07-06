@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
@@ -50,15 +51,20 @@ class TurnoControllerTest {
     @Test
     @DisplayName("Verificar status 200 OK al listar todos los turnos")
     void probarStatus200() throws Exception {
+        // Arrange
         lenient().when(turnoService.listarTurnos()).thenReturn(java.util.List.of());
 
-        mockMvc.perform(get(BASE_URL))
-                .andExpect(status().isOk());
+        // Act
+        ResultActions response = mockMvc.perform(get(BASE_URL));
+
+        // Assert
+        response.andExpect(status().isOk());
     }
 
     @Test
     @DisplayName("Verificar status 201 Created al crear un turno")
     void probarStatus201() throws Exception {
+        // Arrange
         TurnoCreateDTO peticion = new TurnoCreateDTO();
         peticion.setRutFuncionario("12345678-9");
         peticion.setPuesto("Control de Aduana");
@@ -71,27 +77,39 @@ class TurnoControllerTest {
 
         lenient().when(turnoService.asignarTurno(any(TurnoCreateDTO.class))).thenReturn(respuesta);
 
-        mockMvc.perform(post(BASE_URL)
+        // Act
+        ResultActions response = mockMvc.perform(post(BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(peticion)))
-                .andExpect(status().isCreated());
+                .content(objectMapper.writeValueAsString(peticion)));
+
+        // Assert
+        response.andExpect(status().isCreated());
     }
 
     @Test
     @DisplayName("Verificar status 400 Bad Request con peticion invalida")
     void probarStatus400() throws Exception {
-        mockMvc.perform(post(BASE_URL)
+        // Arrange (No hay configuración previa requerida)
+        
+        // Act
+        ResultActions response = mockMvc.perform(post(BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{ JSON_MALFORMADO : faltan_comillas ]"))
-                .andExpect(status().isBadRequest());
+                .content("{ JSON_MALFORMADO : faltan_comillas ]"));
+
+        // Assert
+        response.andExpect(status().isBadRequest());
     }
 
     @Test
     @DisplayName("Verificar status 404 Not Found cuando no existe")
     void probarStatus404() throws Exception {
+        // Arrange
         lenient().when(turnoService.listarTurnos()).thenReturn(java.util.List.of());
 
-        mockMvc.perform(get("/ruta-falsa-que-no-existe-para-forzar-404"))
-                .andExpect(status().isNotFound());
+        // Act
+        ResultActions response = mockMvc.perform(get("/ruta-falsa-que-no-existe-para-forzar-404"));
+
+        // Assert
+        response.andExpect(status().isNotFound());
     }
 }
