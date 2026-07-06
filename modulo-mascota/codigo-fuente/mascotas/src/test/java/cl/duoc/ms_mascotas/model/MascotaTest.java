@@ -10,10 +10,10 @@ class MascotaTest {
     @Test
     @DisplayName("Debe crear una mascota vacía y asignar valores con setters")
     void testSettersYGetters() {
-        
+        // Arrange
         Mascota mascota = new Mascota();
 
-        
+        // Act
         mascota.setId(1L);
         mascota.setNombre("Firulais");
         mascota.setMicrochip("981020000123456");
@@ -25,7 +25,7 @@ class MascotaTest {
         mascota.setPaisOrigen("Argentina");
         mascota.setRutDueno("12345678-9");
 
-        
+        // Assert
         assertEquals(1L, mascota.getId());
         assertEquals("Firulais", mascota.getNombre());
         assertEquals("981020000123456", mascota.getMicrochip());
@@ -41,10 +41,10 @@ class MascotaTest {
     @Test
     @DisplayName("Debe instanciar y asignar correctamente los datos de una segunda mascota")
     void testAsignacionSegundaInstancia() {
-        
+        // Arrange
         Mascota mascota = new Mascota();
 
-        
+        // Act
         mascota.setId(2L);
         mascota.setNombre("Michi");
         mascota.setMicrochip("981020000654321");
@@ -56,7 +56,7 @@ class MascotaTest {
         mascota.setPaisOrigen("Perú");
         mascota.setRutDueno("98765432-1");
 
-        
+        // Assert
         assertEquals(2L, mascota.getId());
         assertEquals("Michi", mascota.getNombre());
         assertEquals("981020000654321", mascota.getMicrochip());

@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDate;
@@ -50,25 +51,29 @@ class MenorControllerTest {
     @Test
     @DisplayName("Verificar status 200 OK al listar o buscar por RUT")
     void probarStatus200() throws Exception {
+        // Arrange
         MenorDTO dto = new MenorDTO();
         dto.setRut("12345678-9");
         dto.setNombre("Juan");
 
         lenient().when(menorService.obtener(anyString())).thenReturn(dto);
 
-        mockMvc.perform(get(BASE_URL + "/12345678-9"))
-                .andExpect(status().isOk())
+        // Act
+        ResultActions response = mockMvc.perform(get(BASE_URL + "/12345678-9"));
+
+        // Assert
+        response.andExpect(status().isOk())
                 .andExpect(jsonPath("$.rut").value("12345678-9"));
     }
 
     @Test
     @DisplayName("Verificar status 201 Created al registrar un menor")
     void probarStatus201() throws Exception {
+        // Arrange
         MenorCreateDTO peticion = new MenorCreateDTO();
         peticion.setRut("99999999-9");
         peticion.setNombre("Ana");
         peticion.setRutTutor("11111111-1");
-
         peticion.setNumeroActa("ACT-001"); 
         peticion.setEdad(10);
         
@@ -77,29 +82,40 @@ class MenorControllerTest {
 
         lenient().when(menorService.registrar(any(MenorCreateDTO.class))).thenReturn(respuesta);
 
-        mockMvc.perform(post(BASE_URL)
+        // Act
+        ResultActions response = mockMvc.perform(post(BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(peticion)))
-                .andExpect(status().isCreated());
+                .content(objectMapper.writeValueAsString(peticion)));
+
+        // Assert
+        response.andExpect(status().isCreated());
     }
 
     @Test
     @DisplayName("Verificar status 400 Bad Request con JSON malformado")
     void probarStatus400() throws Exception {
-        mockMvc.perform(post(BASE_URL)
+        // Arrange (No hay configuración previa requerida)
+        
+        // Act
+        ResultActions response = mockMvc.perform(post(BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{ JSON_INVALIDO : [ 123 ]"))
-                .andExpect(status().isBadRequest());
+                .content("{ JSON_INVALIDO : [ 123 ]"));
+
+        // Assert
+        response.andExpect(status().isBadRequest());
     }
 
     @Test
-@DisplayName("Verificar status 404 Not Found")
-void probarStatus404() throws Exception {
-    
-    lenient().when(menorService.obtener(anyString()))
-             .thenThrow(new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND));
+    @DisplayName("Verificar status 404 Not Found")
+    void probarStatus404() throws Exception {
+        // Arrange
+        lenient().when(menorService.obtener(anyString()))
+                 .thenThrow(new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND));
 
-    mockMvc.perform(get(BASE_URL + "/00000000-0"))
-           .andExpect(status().isNotFound());
-}
+        // Act
+        ResultActions response = mockMvc.perform(get(BASE_URL + "/00000000-0"));
+
+        // Assert
+        response.andExpect(status().isNotFound());
+    }
 }

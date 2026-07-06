@@ -24,6 +24,7 @@ class MascotaRepositoryTest {
     @Test
     @DisplayName("Debe guardar una mascota (Prueba de save)")
     void probarSave() {
+        // Arrange
         Mascota mascota = new Mascota();
         mascota.setNombre("Firulais");
         mascota.setMicrochip("981020000123456");
@@ -35,14 +36,17 @@ class MascotaRepositoryTest {
         mascota.setPaisOrigen("Chile");
         mascota.setRutDueno("12345678-9");
 
+        // Act
         Mascota guardado = repository.save(mascota);
 
+        // Assert
         assertNotNull(guardado.getId());
     }
 
     @Test
     @DisplayName("Debe buscar una mascota por ID (Prueba de findById)")
     void probarFindById() {
+        // Arrange
         Mascota mascota = new Mascota();
         mascota.setNombre("Michi");
         mascota.setMicrochip("981020000654321");
@@ -56,8 +60,10 @@ class MascotaRepositoryTest {
         
         Mascota guardado = repository.save(mascota);
 
+        // Act
         Optional<Mascota> encontrado = repository.findById(guardado.getId());
 
+        // Assert
         assertTrue(encontrado.isPresent());
         assertEquals(guardado.getId(), encontrado.get().getId());
     }
@@ -65,6 +71,7 @@ class MascotaRepositoryTest {
     @Test
     @DisplayName("Debe listar todas las mascotas (Prueba de findAll)")
     void probarFindAll() {
+        // Arrange
         Mascota m1 = new Mascota(); 
         m1.setNombre("Mascota Uno");
         m1.setMicrochip("111111111111111");
@@ -90,8 +97,10 @@ class MascotaRepositoryTest {
         repository.save(m1);
         repository.save(m2);
 
+        // Act
         List<Mascota> lista = repository.findAll();
 
+        // Assert
         assertTrue(lista.size() >= 2);
     }
 }

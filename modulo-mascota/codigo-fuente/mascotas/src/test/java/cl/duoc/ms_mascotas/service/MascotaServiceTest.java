@@ -11,6 +11,7 @@ import cl.duoc.mascotas.service.MascotaService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -39,7 +40,7 @@ class MascotaServiceTest {
     @Test
     @DisplayName("Debe retornar una mascota cuando se busca por un microchip existente")
     void debeRetornarMascotaPorMicrochip() {
-        // Given
+        // Arrange
         String microchipBuscado = "981020000123456";
         Mascota mockMascota = new Mascota();
         mockMascota.setMicrochip(microchipBuscado);
@@ -47,10 +48,10 @@ class MascotaServiceTest {
 
         when(repository.findByMicrochip(microchipBuscado)).thenReturn(Optional.of(mockMascota));
 
-        // When
+        // Act
         MascotaDTO resultado = service.obtener(microchipBuscado);
 
-        // Then
+        // Assert
         assertNotNull(resultado);
         verify(repository, times(1)).findByMicrochip(microchipBuscado);
     }
@@ -58,32 +59,32 @@ class MascotaServiceTest {
     @Test
     @DisplayName("Debe lanzar excepción cuando se busca un microchip que no existe")
     void debeLanzarExcepcionPorMicrochipNoEncontrado() {
-        // Given
+        // Arrange
         String microchipInexistente = "000000000000000";
         when(repository.findByMicrochip(microchipInexistente)).thenReturn(Optional.empty());
 
-        // When & Then
-        assertThrows(RecursoNoEncontradoException.class, () -> {
-            service.obtener(microchipInexistente);
-        });
+        // Act
+        Executable accion = () -> service.obtener(microchipInexistente);
 
+        // Assert
+        assertThrows(RecursoNoEncontradoException.class, accion);
         verify(repository, times(1)).findByMicrochip(microchipInexistente);
     }
 
     @Test
     @DisplayName("Debe retornar la lista completa de mascotas")
     void debeRetornarListaDeMascotas() {
-        // Given
+        // Arrange
         Mascota m1 = new Mascota(); m1.setNombre("Firulais"); m1.setEspecie("Canino");
         Mascota m2 = new Mascota(); m2.setNombre("Michi");  m2.setEspecie("Felino");
         List<Mascota> listaSimulada = Arrays.asList(m1, m2);
 
         when(repository.findAll()).thenReturn(listaSimulada);
 
-        // When
+        // Act
         List<MascotaDTO> resultado = service.listar();
 
-        // Then
+        // Assert
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
         verify(repository, times(1)).findAll();
@@ -92,7 +93,7 @@ class MascotaServiceTest {
     @Test
     @DisplayName("Debe crear una mascota exitosamente")
     void debeCrearMascota() {
-        // Given
+        // Arrange
         MascotaCreateDTO nuevaMascotaDTO = new MascotaCreateDTO();
         nuevaMascotaDTO.setMicrochip("981020000123456");
         nuevaMascotaDTO.setNombre("Firulais");
@@ -114,10 +115,10 @@ class MascotaServiceTest {
         when(usuarioClient.obtenerPorRut(anyString())).thenReturn(null);
         when(repository.save(any(Mascota.class))).thenReturn(mockMascota);
 
-        // When
+        // Act
         MascotaDTO resultado = service.registrar(nuevaMascotaDTO);
 
-        // Then
+        // Assert
         assertNotNull(resultado);
         verify(repository, times(1)).save(any(Mascota.class));
         verify(usuarioClient, times(1)).obtenerPorRut("12345678-9");
@@ -126,7 +127,7 @@ class MascotaServiceTest {
     @Test
     @DisplayName("Debe actualizar una mascota existente")
     void debeActualizarMascota() {
-        // Given
+        // Arrange
         String microchipActualizar = "981020000123456";
 
         MascotaCreateDTO dtoActualizacion = new MascotaCreateDTO();
@@ -142,10 +143,10 @@ class MascotaServiceTest {
         when(repository.findByMicrochip(microchipActualizar)).thenReturn(Optional.of(mascotaExistente));
         when(repository.save(any(Mascota.class))).thenReturn(mascotaExistente);
 
-        // When
+        // Act
         MascotaDTO resultado = service.actualizar(microchipActualizar, dtoActualizacion);
 
-        // Then
+        // Assert
         assertNotNull(resultado);
         verify(repository, times(1)).findByMicrochip(microchipActualizar);
         verify(repository, times(1)).save(any(Mascota.class));
@@ -156,7 +157,7 @@ class MascotaServiceTest {
     @Test
     @DisplayName("Debe eliminar una mascota por microchip")
     void debeEliminarMascota() {
-        // Given
+        // Arrange
         String microchipEliminar = "981020000123456";
         Mascota mascotaExistente = new Mascota();
         mascotaExistente.setMicrochip(microchipEliminar);
@@ -164,10 +165,10 @@ class MascotaServiceTest {
         when(repository.findByMicrochip(microchipEliminar)).thenReturn(Optional.of(mascotaExistente));
         doNothing().when(repository).delete(mascotaExistente);
 
-        // When
+        // Act
         service.eliminar(microchipEliminar);
 
-        // Then
+        // Assert
         verify(repository, times(1)).findByMicrochip(microchipEliminar);
         verify(repository, times(1)).delete(mascotaExistente);
     }
